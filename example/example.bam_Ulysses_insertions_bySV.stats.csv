@@ -1,2 +1,0 @@
-Library;(pair of) chromosome(s);ID;nbPS;nbA;nbB;left_borderA;right_borderA;deltaA;cen_posA;left_borderB;right_borderB;deltaB;cen_posB;SV_size_min;SV_size_max;p-balanced;cov;AvrQual;pval
-example.bam;chr16-chr5;4;516;247;269;781569;781569;0;NiNi;116029;116029;0;NiNi;-1;-1;0.918215613383;NA;25.0;0
