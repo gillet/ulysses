@@ -205,6 +205,7 @@ def completeParams(params, paramfile):
         params["stats"] = params["in"]+"_stats.txt"
     
     return list_chr_real
+
     
 #-------------------------------------------------------------------------
 
