@@ -1,0 +1,6 @@
+Library;(pair of) chromosome(s);ID;nbPS;nbA;nbB;left_borderA;right_borderA;deltaA;cen_posA;left_borderB;right_borderB;deltaB;cen_posB;SV_size_min;SV_size_max;p-balanced;cov;AvrQual;pval
+example.bam;chr3;1;509;509;-1;84729;95641;10912;NA;-1;-1;-1;NA;7754;7754;-1;19;25.0;0
+example.bam;chr3;2;229;229;-1;199466;293685;94219;NA;-1;-1;-1;NA;93654;93654;-1;30;25.0;0
+example.bam;chr3;3;17;17;-1;84269;93304;9035;NA;-1;-1;-1;NA;6175;6175;-1;17;25.0;2.9632716542086e-20
+example.bam;chr3;4;7;7;-1;198477;293707;95230;NA;-1;-1;-1;NA;91679;91679;-1;30;25.0;6.78760384414391e-06
+example.bam;chr3;5;4;4;-1;77662;169485;91823;NA;-1;-1;-1;NA;86782;86782;-1;19;25.0;0.000969914945820944

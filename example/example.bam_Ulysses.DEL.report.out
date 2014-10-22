@@ -1,0 +1,26 @@
+
+-----------	Detection of Deletion
+		Insert Size Consistency (isc) = 2143.80
+		Minimal Insert Size = 7766
+		Maximum distance between PS extremities (D) = 7766.80
+		FDR threshold (d) = 0.01
+
+ Minimum number of PS to define a deletion : 2Detection processed
+results written to /home/ingridl/ulysses/example/example.bam_Ulysses_deletions_by[PS/SV].[stats.]csv
+
+-----------	Detection of Deletion
+		Insert Size Consistency (isc) = 2143.80
+		Minimal Insert Size = 7766
+		Maximum distance between PS extremities (D) = 7766.80
+		FDR threshold (d) = 0.01
+
+ Minimum number of PS to define a deletion : 2Detection processed
+results written to /home/ingridl/ulysses/example/example.bam_Ulysses_deletions_by[PS/SV].[stats.]csv
+
+-----------	Detection of Deletion
+		Insert Size Consistency (isc) = 2143.80
+		Minimal Insert Size = 7766
+		Maximum distance between PS extremities (D) = 7766.80
+		FDR threshold (d) = 0.01
+
+ Minimum number of PS to define a deletion : 2

@@ -30,8 +30,14 @@ from sys import getsizeof
 from itertools import chain
 from collections import deque
 
-
-
+#-----------------------------------------------------------------------------
+def testFile(fil):
+        try:
+	   with open(fil) as f:
+	       return 1
+        except IOError as e:
+	    return 0
+    
 #------------------------------------------------------------------------------
 def write_VCF(vcffile, dicres, lib, params):
     """ Write a VCF 4.2 output file 
@@ -527,6 +533,10 @@ def prepare_detection(sv_type, run_info, bam_file):
          stats, chrDicos = {},{}
          stats["chromosome_prefix"] = "" 
     else:
+	if not testFile(params["stats"]):
+	    print "\n\n\t************** Error : File "+params["stats"]+" does not exist\n"
+            sys.exit()
+	
         stats, chrDicos = read_stats(params["stats"])
     
 

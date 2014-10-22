@@ -74,7 +74,9 @@ def parser():
                         type=int, default=20, help='Average minimal mapping quality of reads for INS, RT and NRT')
 
     parser.add_argument("-typesv", metavar='type_of_SV_detection',default='all',\
-                        help='all for all SV types. DUP for duplication, \
+                        help='all for all SV types.\
+                        Else, only one SV type at once :\
+                        DUP for duplication, \
                         DEL for deletion, INV for inversion, INTER for \
                         inter-chromosomal SV, default=all.\
                         Add "--stats" to SV type (e.g. DEL--stats) to launch \
@@ -91,8 +93,8 @@ def parser():
                         help='Name of the sample in VCF file (e.g. Tumor', default = False)                        
 
     parser.add_argument("-a", "--annotation", metavar='name_of_annotation_file', 
-                        help='if not given, no distinction of putative reciporcal translocations',
-                        default = "NA")
+                        help='if not given, no distinction of putative reciporcal translocations')
+
     parser.add_argument("-field_chr", metavar='column_in annotation_file_for_chromosome number', 
                         help='column containing chromosome number in annotation file', 
                         type = int, default = 1)
@@ -113,6 +115,7 @@ def parser():
                         
     
     args = parser.parse_args()
+    print args.statsmod
     
     
     print "\n\n\noooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo\n\n"
@@ -124,48 +127,49 @@ def parser():
     print "\n\noooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo\n\n"
 
 
-    #test if annotation files exists
-    try:
-        os.path.isfile(args.annotation)
-    except:
-        print args.annotation, "does not exist\n"
-        sys.exit()
+    #test if input files exists
+    for f in [args.stats, args.annotation, args.p]:
+        if f :
+            if not U.testFile(f):
+                print "\n\n\t************** Error : File "+ f+" does not exist\n"
+                sys.exit()
     
-    if os.path.isfile(args.p):
-        print "\n\nParameter file :", args.p,"\n\n"
-        if args.statsmod == True:
-            print "Statistics will be be performed for", args.typesv, "\n"
-            return vars(args), os.path.abspath(args.p), args.typesv+"--stats"
-        else:
-            if args.typesv == "all":
-                print "All SV type will be detected\n"
-                for val in svname:
-                    if "stats" not in val:
-                        print svname[val]
-            else: 
-                if "stats" not in args.typesv.lower():
-                    print svname[args.typesv.upper()],"will be detected\n"
-                else:
-                    print "Statistical significance for", args.typesv, "candidates will \
-be evaluated\n"
-            return vars(args), os.path.abspath(args.p), args.typesv
 
+    print "\n\nParameter file :", args.p,"\n\n"
+    if args.statsmod == True:
+        print "Statistics will be be performed for", args.typesv, "\n"
+        return vars(args), os.path.abspath(args.p), args.typesv+"--stats"
     else:
-        #print "\n\n\t\t Error :", args.p, "doesn't exist\n\n"
-        return vars(args), 0, "0"
+        if args.typesv == "all":
+            print "All SV type will be detected\n"
+            for val in svname:
+                if "stats" not in val:
+                    print svname[val]
+        elif args.typesv.split("--stats")[0].upper() not in ["DUP","DEL","SINS","INS", "INV", "INTER"]:
+            print "\n\n\t************** Error : SV Type  \""+args.typesv.split("--stats")[0] +"\" does not exist\n"
+            sys.exit()
+	    
+            if "stats" not in args.typesv.lower():
+                print svname[args.typesv.upper()]," will be detected\n"
+            else:
+                print "Statistical significance for ", args.typesv, " candidates will \
+be evaluated\n"
+        return vars(args), os.path.abspath(args.p), args.typesv
+
 
 #-------------------------------------------------------------------------
 def completeParams(params, paramfile):
-    print "PARAMMMMS", params
+
+# 1. Lire fichier de params
     try:
         paramsForUp = U.get_run_info(paramfile)
     except:
-        print "\tError: parameter file does not exist or is not well formatted\n\n"
+        print "\tError: parameter file "+str(paramfile)+" is not well formatted\n\n"
         sys.exit()
     list_chr_real = paramsForUp["range"]
     
     
-    updatable = ['in', 'stats', 'range', 'nsv', 'fdr', 'annotation', 'field_chr',\
+    updatable = ['stats', 'range', 'nsv', 'fdr', 'annotation', 'field_chr',\
     'field_type','field_start','field_end','field_sep', 'n', 'mapq', 'mapqx'  ]
 
     for categorie in paramsForUp:
@@ -186,7 +190,6 @@ def completeParams(params, paramfile):
  
     #Obselete
     check = {
-    "in":"name of input file. example human for human_X X name of chromosome",\
     "out":"NA","stats":"NA","annotation":"NA", "field_chr":1,"field_type":3,\
     "field_start":4,"field_end":5,"sep":";",\
     "range":"all","n":6,"fdr":0.01,"nsv":100000}
@@ -197,7 +200,7 @@ def completeParams(params, paramfile):
         elif not params[val]:
                 params[val] = check[val]
     if not params["out"] :
-        params["out"] = params["in"]+"_Ulyssse"
+        params["out"] = params["in"]+"_Ulysses"
     if not params["stats"]:
         params["stats"] = params["in"]+"_stats.txt"
     

@@ -1,0 +1,17 @@
+#Estimation on the first 100000 PS
+PS_type : MP
+Read_length : 51
+Chromosome_prefix : chr
+Mean : 5834.83
+Median : 5623.00
+MAD : 357.30
+stdev : 8892.43
+nDEL : 934
+nSINS : 9672
+nDUP : 357
+nINV : 358
+nInter : 2322
+genome_length : 1841557
+length chr5 576874
+length chr3 316617
+length chr16 948066

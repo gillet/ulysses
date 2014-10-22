@@ -1,0 +1,64 @@
+##fileformat=VCFv4.1
+##fileDate=22/10/2014
+##ALT=<ID=DEL,Description="Deletion">
+##ALT=<ID=DUP,Description="Tandem Duplication">
+##ALT=<ID=INV,Description="Inversion">
+##ALT=<ID=INS,Description="Insertion">
+##ALT=<ID=sINS,Description="Small Insertion">
+##ALT=<ID=RT,Description="Reciprocal Translocation">
+##ALT=<ID=NRT,Description="Non Reciprocal Translocation">
+##FILTER=<ID=fdr,Description="SV below FDR">
+##FILTER=<ID=q20,Description="PS average mapping quality below 20">
+##FILTER=<ID=q20,Description="PS average mapping quality below 20">
+##INFO=<ID=SOMATIC,Number=0,Type=Flag,Description="SOMATIC, GERMLINEor UNKNOWN status">
+##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of Structural variant">
+##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant">
+##INFO=<ID=CIEND,Number=2,Type=Integer,Description="Confidence interval around END for imprecise variants">
+##INFO=<ID=CIPOS,Number=2,Type=Integer,Description="Confidence interval around POS for imprecise variants">
+##INFO=<ID=LIB,Number=1,Type=String,Description="Name of the input file">
+##INFO=<ID=CHR,Number=1,Type=String,Description="(pair of) chromosome(s)">
+##INFO=<ID=ID,Number=1,Type=String,Description="Internal ID">
+##INFO=<ID=nbPS,Number=1,Type=Integer,Description="Number of PS describing the SV">
+##INFO=<ID=nbA,Number=1,Type=Integer,Description="nb of PS describing the SV on chromosome A">
+##INFO=<ID=nbB,Number=1,Type=Integer,Description="nb of PS describing the SV on chromosome B">
+##INFO=<ID=LBA,Number=1,Type=Integer,Description="5' border of the SV on chromosome A">
+##INFO=<ID=RBA,Number=1,Type=Integer,Description="3' border of the SV on chromosome A">
+##INFO=<ID=DA,Number=1,Type=Integer,Description="SV range on chromosome A between right and left borders">
+##INFO=<ID=CPA,Number=1,Type=String,Description="Four digit code giving the position of reads with respect to centromere (L for left arm and R for right arm) and strand orientation (+/-). The first two digits for read1 and the last two digits for read2">
+##INFO=<ID=LBB,Number=1,Type=Integer,Description="5' border of the SV on chromosome B">
+##INFO=<ID=RBB,Number=1,Type=Integer,Description="3' border of the SV on chromosome B">
+##INFO=<ID=DB,Number=1,Type=Integer,Description="SV range on chromosome B between right and left borders">
+##INFO=<ID=CPB,Number=1,Type=String,Description="Four digit code giving the position of reads with respect to centromere (L for left arm and R for right arm) and strand orientation (+/-). The first two digits for read1 and the last two digits for read2">
+##INFO=<ID=SVMI,Number=1,Type=Integer,Description="Minimum estimated SV size">
+##INFO=<ID=SVM,Number=1,Type=Integer,Description="Maximum estimated SV size">
+##INFO=<ID=PBAL,Number=1,Type=String,Description="For SV with two junctions only. P-value of the binomial test (see methods)">
+##INFO=<ID=COV,Number=1,Type=String,Description="Coverage +-10kb">
+##INFO=<ID=AVRQUAL,Number=1,Type=Float,Description="Average read mapping quality">
+##INFO=<ID=PVAL,Number=1,Type=Float,Description="P-value of the SV statistical validation test">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+chr16	781569	chr16-chr5.4	N	<INS>	0	PASS	UNKNOWN;SVTYPE=INS;END=781569;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr16-chr5;ID=chr16-chr5.4;nbPS=516;nbA=247;nbB=269;LBA=781569;RBA=781569;DA=0;CPA=NiNi;LBB=116029;RBB=116029;DB=0;CPB=NiNi;SVMI=-1;SVM=-1;PBAL=0.918215613383;COV=NA;AVRQUAL=25.0;PVAL=0.00000e+00
+chr16	227764	chr16.1	N	<DEL>	23	fdr	UNKNOWN;SVTYPE=DEL;END=227764;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr16;ID=chr16.1;nbPS=3;nbA=3;nbB=-1;LBA=227764;RBA=229194;DA=1430;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=2713;SVM=2713;PBAL=-1;COV=31;AVRQUAL=25.0;PVAL=9.36609e-02
+chr16	246246	chr16.2	N	<DEL>	13	fdr	UNKNOWN;SVTYPE=DEL;END=246246;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr16;ID=chr16.2;nbPS=2;nbA=2;nbB=-1;LBA=246246;RBA=251445;DA=5199;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=2863;SVM=2863;PBAL=-1;COV=29;AVRQUAL=25.0;PVAL=2.61069e-01
+chr16	319843	chr16.3	N	<DEL>	12	fdr	UNKNOWN;SVTYPE=DEL;END=319843;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr16;ID=chr16.3;nbPS=2;nbA=2;nbB=-1;LBA=319843;RBA=322542;DA=2699;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=2581;SVM=2581;PBAL=-1;COV=30;AVRQUAL=25.0;PVAL=2.77790e-01
+chr16	456173	chr16.4	N	<DEL>	11	fdr	UNKNOWN;SVTYPE=DEL;END=456173;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr16;ID=chr16.4;nbPS=2;nbA=2;nbB=-1;LBA=456173;RBA=461740;DA=5567;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=2466;SVM=2466;PBAL=-1;COV=32;AVRQUAL=25.0;PVAL=3.02980e-01
+chr16	702422	chr16.5	N	<DEL>	13	fdr	UNKNOWN;SVTYPE=DEL;END=702422;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr16;ID=chr16.5;nbPS=2;nbA=2;nbB=-1;LBA=702422;RBA=708667;DA=6245;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=2767;SVM=2767;PBAL=-1;COV=29;AVRQUAL=25.0;PVAL=2.64992e-01
+chr16	715347	chr16.6	N	<DEL>	11	fdr	UNKNOWN;SVTYPE=DEL;END=715347;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr16;ID=chr16.6;nbPS=2;nbA=2;nbB=-1;LBA=715347;RBA=722403;DA=7056;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=3594;SVM=3594;PBAL=-1;COV=34;AVRQUAL=25.0;PVAL=3.19256e-01
+chr3	6680	chr3.6	N	<DEL>	52	PASS	UNKNOWN;SVTYPE=DEL;END=6680;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr3;ID=chr3.6;nbPS=3;nbA=3;nbB=-1;LBA=6680;RBA=199470;DA=192790;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=187346;SVM=187346;PBAL=-1;COV=22;AVRQUAL=25.0;PVAL=5.40228e-03
+chr3	77662	chr3.5	N	<DEL>	69	PASS	UNKNOWN;SVTYPE=DEL;END=77662;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr3;ID=chr3.5;nbPS=4;nbA=4;nbB=-1;LBA=77662;RBA=169485;DA=91823;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=86782;SVM=86782;PBAL=-1;COV=19;AVRQUAL=25.0;PVAL=9.69915e-04
+chr3	84269	chr3.3	N	<DEL>	449	PASS	UNKNOWN;SVTYPE=DEL;END=84269;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr3;ID=chr3.3;nbPS=17;nbA=17;nbB=-1;LBA=84269;RBA=93304;DA=9035;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=6175;SVM=6175;PBAL=-1;COV=17;AVRQUAL=25.0;PVAL=2.96327e-20
+chr3	84729	chr3.1	N	<DEL>	0	PASS	UNKNOWN;SVTYPE=DEL;END=84729;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr3;ID=chr3.1;nbPS=509;nbA=509;nbB=-1;LBA=84729;RBA=95641;DA=10912;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=7754;SVM=7754;PBAL=-1;COV=19;AVRQUAL=25.0;PVAL=0.00000e+00
+chr3	198477	chr3.4	N	<DEL>	119	PASS	UNKNOWN;SVTYPE=DEL;END=198477;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr3;ID=chr3.4;nbPS=7;nbA=7;nbB=-1;LBA=198477;RBA=293707;DA=95230;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=91679;SVM=91679;PBAL=-1;COV=30;AVRQUAL=25.0;PVAL=6.78760e-06
+chr3	199466	chr3.2	N	<DEL>	0	PASS	UNKNOWN;SVTYPE=DEL;END=199466;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr3;ID=chr3.2;nbPS=229;nbA=229;nbB=-1;LBA=199466;RBA=293685;DA=94219;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=93654;SVM=93654;PBAL=-1;COV=30;AVRQUAL=25.0;PVAL=0.00000e+00
+chr3	199481	chr3.7	N	<DEL>	19	fdr	UNKNOWN;SVTYPE=DEL;END=199481;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr3;ID=chr3.7;nbPS=2;nbA=2;nbB=-1;LBA=199481;RBA=298462;DA=98981;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=93392;SVM=93392;PBAL=-1;COV=30;AVRQUAL=25.0;PVAL=1.42606e-01
+chr3	286425	chr3.8	N	<DEL>	12	fdr	UNKNOWN;SVTYPE=DEL;END=286425;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr3;ID=chr3.8;nbPS=2;nbA=2;nbB=-1;LBA=286425;RBA=291982;DA=5557;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=2824;SVM=2824;PBAL=-1;COV=31;AVRQUAL=25.0;PVAL=2.86043e-01
+chr5	114715	chr5.1	N	<DEL>	22	fdr	UNKNOWN;SVTYPE=DEL;END=114715;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr5;ID=chr5.1;nbPS=3;nbA=3;nbB=-1;LBA=114715;RBA=118760;DA=4045;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=2228;SVM=2228;PBAL=-1;COV=31;AVRQUAL=25.0;PVAL=1.02783e-01
+chr5	135406	chr5.2	N	<DEL>	12	fdr	UNKNOWN;SVTYPE=DEL;END=135406;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr5;ID=chr5.2;nbPS=2;nbA=2;nbB=-1;LBA=135406;RBA=141959;DA=6553;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=3310;SVM=3310;PBAL=-1;COV=32;AVRQUAL=25.0;PVAL=2.98672e-01
+chr16	585428	chr16.1	N	<DUP>	0	fdr	UNKNOWN;SVTYPE=DUP;END=585428;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam_Ulysses;CHR=chr16;ID=chr16.1;nbPS=2;nbA=2;nbB=-1;LBA=585428;RBA=595251;DA=9823;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=1;SVM=15023;PBAL=-1;COV=NA;AVRQUAL=50.0;PVAL=1.00000e+00
+chr3	16824	chr3.3	N	<DUP>	0	fdr	UNKNOWN;SVTYPE=DUP;END=16824;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam_Ulysses;CHR=chr3;ID=chr3.3;nbPS=4;nbA=4;nbB=-1;LBA=16824;RBA=199487;DA=182663;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=173756;SVM=189290;PBAL=-1;COV=NA;AVRQUAL=25.0;PVAL=1.00000e+00
+chr3	199460	chr3.2	N	<DUP>	0	PASS	UNKNOWN;SVTYPE=DUP;END=199460;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam_Ulysses;CHR=chr3;ID=chr3.2;nbPS=243;nbA=243;nbB=-1;LBA=199460;RBA=294383;DA=94923;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=80103;SVM=95636;PBAL=-1;COV=NA;AVRQUAL=25.0;PVAL=0.00000e+00
+chr3	201706	chr3.4	N	<DUP>	0	fdr	UNKNOWN;SVTYPE=DUP;END=201706;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam_Ulysses;CHR=chr3;ID=chr3.4;nbPS=3;nbA=3;nbB=-1;LBA=201706;RBA=294319;DA=92613;CPA=NA;LBB=-1;RBB=-1;DB=-1;CPB=NA;SVMI=84374;SVM=99907;PBAL=-1;COV=NA;AVRQUAL=25.0;PVAL=1.00000e+00
+chr16	346053	chr16-chr5.2	N	<INS>	0	PASS	UNKNOWN;SVTYPE=INS;END=346053;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr16-chr5;ID=chr16-chr5.2;nbPS=2;nbA=2;nbB=0;LBA=346053;RBA=-1;DA=-346054;CPA=NiNi;LBB=-1;RBB=473118;DB=473119;CPB=NA;SVMI=-1;SVM=-1;PBAL=NA;COV=NA;AVRQUAL=25.0;PVAL=1.00000e+00
+chr16	367959	chr16-chr3.1	N	<INS>	0	PASS	UNKNOWN;SVTYPE=INS;END=367959;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr16-chr3;ID=chr16-chr3.1;nbPS=2;nbA=2;nbB=0;LBA=367959;RBA=-1;DA=-367960;CPA=NiNi;LBB=-1;RBB=137920;DB=137921;CPB=NA;SVMI=-1;SVM=-1;PBAL=NA;COV=NA;AVRQUAL=25.0;PVAL=1.00000e+00
+chr16	477584	chr16-chr5.3	N	<INS>	0	PASS	UNKNOWN;SVTYPE=INS;END=477584;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr16-chr5;ID=chr16-chr5.3;nbPS=2;nbA=2;nbB=0;LBA=477584;RBA=-1;DA=-477585;CPA=NiNi;LBB=-1;RBB=466957;DB=466958;CPB=NA;SVMI=-1;SVM=-1;PBAL=NA;COV=NA;AVRQUAL=25.0;PVAL=1.00000e+00
+chr16	605635	chr16-chr5.1	N	<INS>	0	PASS	UNKNOWN;SVTYPE=INS;END=605635;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr16-chr5;ID=chr16-chr5.1;nbPS=2;nbA=2;nbB=0;LBA=605635;RBA=-1;DA=-605636;CPA=NiNi;LBB=-1;RBB=186114;DB=186115;CPB=NA;SVMI=-1;SVM=-1;PBAL=NA;COV=NA;AVRQUAL=25.0;PVAL=1.00000e+00
+chr3	223564	chr3-chr5.1	N	<INS>	0	PASS	UNKNOWN;SVTYPE=INS;END=223564;CIEND=-5623.0,5623.0;CIPOS=-5623.0,5623.0;LIB=example.bam;CHR=chr3-chr5;ID=chr3-chr5.1;nbPS=2;nbA=2;nbB=0;LBA=223564;RBA=-1;DA=-223565;CPA=NiNi;LBB=-1;RBB=123682;DB=123683;CPB=NA;SVMI=-1;SVM=-1;PBAL=NA;COV=NA;AVRQUAL=25.0;PVAL=1.00000e+00

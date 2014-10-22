@@ -1,0 +1,5 @@
+Library;(pair of) chromosome(s);ID;nbPS;nbA;nbB;left_borderA;right_borderA;deltaA;cen_posA;left_borderB;right_borderB;deltaB;cen_posB;SV_size_min;SV_size_max;p-balanced;cov;AvrQual;pval
+example.bam_Ulysses;chr16;1;2;2;-1;585428;595251;9823;NA;-1;-1;-1;NA;1;15023;-1;NA;50.0;0.999999999999997
+example.bam_Ulysses;chr3;2;243;243;-1;199460;294383;94923;NA;-1;-1;-1;NA;80103;95636;-1;NA;25.0;0
+example.bam_Ulysses;chr3;3;4;4;-1;16824;199487;182663;NA;-1;-1;-1;NA;173756;189290;-1;NA;25.0;1
+example.bam_Ulysses;chr3;4;3;3;-1;201706;294319;92613;NA;-1;-1;-1;NA;84374;99907;-1;NA;25.0;1
