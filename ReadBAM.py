@@ -109,7 +109,6 @@ def getReadsInfos(fil, chromInfo, nbMax, RL, insertL, insertS, typeps, DUP):
                         orient = ''.join([ori1, ori2])
                         if orient == '-+' or orient == '+-':
                             DUP[orient].append(abs(pos1-pos2))
-                        #print read1.qname, read1.tlen
             if cp >= nbMax:
                return 1
         if cp==0:
