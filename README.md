@@ -1,1 +1,1 @@
-ReadMe available at www.lcqb.upmc.fr/ulysses
+Documentation is available at www.lcqb.upmc.fr/ulysses
