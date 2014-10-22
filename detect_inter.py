@@ -437,11 +437,8 @@ def launch(paramfile, onlyStatPerform, list_chr_real):
 
 
     if os.path.isfile(paramfile):
-        print "parameter file is :", paramfile
         params, stats, chrDicos = U.prepare_detection("interX", paramfile,
                                                       "NA")
-        #if ''.join(list_chr_real)!='all':
-        #    list_chr_real = [ stats["chromosome_prefix"] + str(x) for x in list_chr_real ]
         
         if onlyStatPerform:
             pval_seuil_ins, pval_seuil_tr, pval_seuil_tn = runStatsInter(params, stats, chrDicos)

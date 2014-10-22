@@ -792,10 +792,6 @@ def launch(paramfile, onlyStatPerform, list_chr_real):
     
     if os.path.isfile(paramfile):
         params = U.get_run_info(paramfile)
-        #print "DEB"
-        #Ualex.printplus(params)
-        #print "OOOOOOOO", onlyStatPerform
-        print "parameter file is :", paramfile
         params, stats, chrDicos = U.prepare_detection("deletions", paramfile,
                                                       "NA")
         #if ''.join(list_chr_real)!='all':

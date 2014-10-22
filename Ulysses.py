@@ -42,8 +42,7 @@ def parser():
                     
                     '''))
     
-    parser.add_argument("-in", metavar='input_file_name', 
-                        help='name of the library file (BAM/SAM format)')                        
+                      
     
     parser.add_argument("-p", metavar='parameter_file_name', 
                         help='file containing all parameter values. default \
@@ -124,6 +123,14 @@ def parser():
     print "\t\t\t\t Copyright UPMC - CNRS\n\n"
     print "\n\noooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo\n\n"
 
+
+    #test if annotation files exists
+    try:
+        os.path.isfile(args.annotation)
+    except:
+        print args.annotation, "does not exist\n"
+        sys.exit()
+    
     if os.path.isfile(args.p):
         print "\n\nParameter file :", args.p,"\n\n"
         if args.statsmod == True:
@@ -149,7 +156,7 @@ be evaluated\n"
 
 #-------------------------------------------------------------------------
 def completeParams(params, paramfile):
-    
+    print "PARAMMMMS", params
     try:
         paramsForUp = U.get_run_info(paramfile)
     except:
@@ -158,7 +165,7 @@ def completeParams(params, paramfile):
     list_chr_real = paramsForUp["range"]
     
     
-    updatable = ['stats', 'range', 'nsv', 'fdr', 'annotation', 'field_chr',\
+    updatable = ['in', 'stats', 'range', 'nsv', 'fdr', 'annotation', 'field_chr',\
     'field_type','field_start','field_end','field_sep', 'n', 'mapq', 'mapqx'  ]
 
     for categorie in paramsForUp:
@@ -186,9 +193,6 @@ def completeParams(params, paramfile):
     
     for val in check:
         if val not in params:
-            if val == "in" :
-                params["in"] = raw_input("You must give the name of the Library file") 
-            else:
                 params[val] = check[val]
         elif not params[val]:
                 params[val] = check[val]
@@ -200,6 +204,8 @@ def completeParams(params, paramfile):
     return list_chr_real
     
 #-------------------------------------------------------------------------
+
+
 
 params, paramfile, typesv = parser()
 

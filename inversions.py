@@ -641,12 +641,6 @@ def launch(paramfile, onlyStatPerform, list_chr_real):
     if os.path.isfile(paramfile):
         params, stats, chrDicos = U.prepare_detection("inversions", 
                                                       paramfile, "NA")
-        #print "ggg", list_chr_real, len(list_chr_real)
-        #if ''.join(list_chr_real)!='all':
-        
-        #if len(list_chr_real)==3:
-#            if list_chr_real[0]=='a' and list_chr_real[1]=='l' and list_chr_real[2]=='l':
- #               list_chr_real = [ stats["chromosome_prefix"] + str(x) for x in list_chr_real ]
         
         if onlyStatPerform:
             pval_seuil_inv = runStatsInv(params, stats, chrDicos)
