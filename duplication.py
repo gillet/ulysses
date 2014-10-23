@@ -337,11 +337,6 @@ def runDetectionDup(params, stats, chrDicos, list_chr_real):
 #        output.close()
         
         
-###################################################################################################
-#### TEMPORAIRE A CAUSE DES CHIMERES (BAM file: flag pas ok, il peut y avoir 2 primary reads)
-        classorix = list(set([tuple(i) for i in classorix]))
-######################################################################################################                                 
-                                 
         dup = Duplication(classorix, stats["mad"], stats["median"], 
                           params["out"], chx, dup, ps_min)
                           
@@ -397,22 +392,10 @@ def runStatsDup(params, stats, chrDicos):
     print msg
     return pval_seuil_dup
 #------------------------------------------------------------------------------
-def launch(paramfile, onlyStatPerform, list_chr_real):    
+def launch(params, stats, chrDicos):
     
-    if os.path.isfile(paramfile):
-        params, stats, chrDicos = U.prepare_detection("duplications", paramfile,
-                                                      "NA")
-        
-        
-        if onlyStatPerform:
-            pval_seuil_dup = runStatsDup(params, stats, chrDicos)
-        else:
-            pval_seuil_dup = runDetectionDup(params, stats, chrDicos, list_chr_real)                                             
-        return pval_seuil_dup
+    if params["only_stats"]:
+        pval_seuil_dup = runStatsDup(params, stats, chrDicos)
     else:
-        print "Error :", paramfile, "doesn't exist"
-
-#------------------------------------------------------------------------------
-if (__name__)  ==  "__main__":
-    paramfile = U.parser("duplications")
-    launch(paramfile)
+        pval_seuil_dup = runDetectionDup(params, stats, chrDicos, params["range"])
+    return pval_seuil_dup

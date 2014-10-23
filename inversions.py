@@ -5,7 +5,7 @@ __date__      = "2011/02/21"
 import os, sys
 import datetime
 import itertools
-now = datetime.datetime.now()
+#now = datetime.datetime.now()
 
 
 try:
@@ -568,15 +568,8 @@ def runDetectionInv(params, stats, chrDicos, list_chr_real):
         classorix = {"++":[], "--":[], "-+":[]}
         ReadFilesBAM(params, chrx, classorix, dicQual)
         
-###################################################################################################
-#### TEMPORAIRE A CAUSE DES CHIMERES (BAM file: flag pas ok, il peut y avoir 2 primary reads)
-        for pair, PSS in classorix.iteritems():
-        #print "pair", pair
-            clasx = list(set([tuple(i) for i in PSS]))
-            classorix[pair]=clasx
-######################################################################################################
         print "Processing", chrx, "- Nb of discordant PS:", str(len(classorix['--'])+len(classorix['++'])), \
-        "-", now.strftime("%Y-%m-%d %H:%M")
+        "-", datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         #TODO: TOREMOVE
         if int(stats["median"])<1000:
             ps_min = 1
@@ -634,23 +627,11 @@ def runDetectionInv(params, stats, chrDicos, list_chr_real):
     return pval_seuil_inv
 
 #------------------------------------------------------------------------------
-def launch(paramfile, onlyStatPerform, list_chr_real):
+def launch(params, stats, chrDicos):
     """Detection of inversions sys.argv[1] = Name of parameter file
     """
-
-    if os.path.isfile(paramfile):
-        params, stats, chrDicos = U.prepare_detection("inversions", 
-                                                      paramfile, "NA")
-        
-        if onlyStatPerform:
-            pval_seuil_inv = runStatsInv(params, stats, chrDicos)
-        else:
-            pval_seuil_inv = runDetectionInv(params, stats, chrDicos, list_chr_real)  
-        return pval_seuil_inv
+    if params["only_stats"]:
+        pval_seuil_inv = runStatsInv(params, stats, chrDicos)
     else:
-        print "Error :", paramfile, "doesn't exist"
-        
-#------------------------------------------------------------------------------
-if (__name__)  ==  "__main__":
-    paramfile = U.parser("inversions")
-    launch(paramfile)
+        pval_seuil_inv = runDetectionInv(params, stats, chrDicos, params["range"])
+    return pval_seuil_inv

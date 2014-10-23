@@ -55,13 +55,13 @@ def parser():
     parser.add_argument("-stats", metavar='statistics_file_name', 
                         help='name of statistics file created during library processing')
 
-    parser.add_argument("-range", metavar='chromosomes used for detection', 
+    parser.add_argument("-range", metavar='chromosomes used for detection', default="all", 
                         help='chromosome numbers (1-10,X or 1,2,Y) to be screened\
                         or \'all\' for all chromosomes')
 
     parser.add_argument("-nsv", metavar='Maximum number of expected SV candidate', \
                         help='Necessary to define the minimum\
-                        number of PS defining an SV', type=int) #, default=10000)
+                        number of PS defining an SV', type=int, default=10000)
 
     parser.add_argument("-fdr", metavar='threshold of deletion FDR', 
                         help='Upper threshold for False discovery rate of a\
@@ -71,18 +71,16 @@ def parser():
                         type=int, default=20, help='Average minimal mapping quality of reads for DUP, DEL, sINS and INV')
 
     parser.add_argument("-mapqx", metavar='mapping_quality_threshold',
-                        type=int, default=20, help='Average minimal mapping quality of reads for INS, RT and NRT')
+                        type=int, default=35, help='Average minimal mapping quality of reads for INS, RT and NRT')
 
     parser.add_argument("-typesv", metavar='type_of_SV_detection',default='all',\
                         help='all for all SV types.\
                         Else, only one SV type at once :\
                         DUP for duplication, \
                         DEL for deletion, INV for inversion, INTER for \
-                        inter-chromosomal SV, default=all.\
-                        Add "--stats" to SV type (e.g. DEL--stats) to launch \
-                        the statistical analysis only or use statsmod')
+                        inter-chromosomal SV, default=all')
 
-    parser.add_argument("-statsmod", metavar='statistical_tests', type=bool,\
+    parser.add_argument("-only_stats", metavar='statistical_tests', type=bool,\
                         default = False, help='If TRUE, only the statistical \
                         validation module is performed on candidate detected SV')
 
@@ -115,11 +113,10 @@ def parser():
                         
     
     args = parser.parse_args()
-    print args.statsmod
     
     
     print "\n\n\noooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo\n\n"
-    print "\t\t\t\t---  ULYSSES v1.0 20140827  ---     \n\n"
+    print "\t\t\t\t---  ULYSSES v1.0 20141023  ---     \n\n"
     print "   Ulysses: Accurate detection of rare structural variations from high coverage genome sequencing\n"
     print "\t\t Alexandre Gillet, Hugues Richard, Gilles Fischer and Ingrid Lafontaine\n"
     print "\t\t\t http://www.lcqb.upmc.fr/ulysses\n\n"
@@ -136,7 +133,7 @@ def parser():
     
 
     print "\n\nParameter file :", args.p,"\n\n"
-    if args.statsmod == True:
+    if args.only_stats == True:
         print "Statistics will be be performed for", args.typesv, "\n"
         return vars(args), os.path.abspath(args.p), args.typesv+"--stats"
     else:
@@ -145,8 +142,8 @@ def parser():
             for val in svname:
                 if "stats" not in val:
                     print svname[val]
-        elif args.typesv.split("--stats")[0].upper() not in ["DUP","DEL","SINS","INS", "INV", "INTER"]:
-            print "\n\n\t************** Error : SV Type  \""+args.typesv.split("--stats")[0] +"\" does not exist\n"
+        elif args.typesv.upper() not in ["DUP","DEL","SINS","INS", "INV", "INTER"]:
+            print "\n\n\t************** Error : SV Type  \""+args.typesv +"\" does not exist\n"
             sys.exit()
 	    
             if "stats" not in args.typesv.lower():
@@ -158,101 +155,75 @@ be evaluated\n"
 
 
 #-------------------------------------------------------------------------
+def isDefault(cle, valeur):
+
+    reference = { "out":None,"stats":None,"annotation":None, "field_chr":1,"field_type":3,\
+                  "field_start":4,"field_end":5,"field_sep":"tb","range":"all","n":6,"fdr":0.01,\
+                  "nsv":10000, "mapq":35,"mapqx":20,"vcf":False}
+
+    if valeur == reference[cle]:
+        return True
+    else:
+        return False
+
+#-------------------------------------------------------------------------
 def completeParams(params, paramfile):
 
-# 1. Lire fichier de params
+# read parameter file
     try:
         paramsForUp = U.get_run_info(paramfile)
     except:
         print "\tError: parameter file "+str(paramfile)+" is not well formatted\n\n"
         sys.exit()
-    list_chr_real = paramsForUp["range"]
+
+    if not U.testFile(paramsForUp["in"]):
+        print "\n\n\t************** Error : Input BAM File "+ params["in"] +" does not exist\n"
+        sys.exit()
     
-    
-    updatable = ['stats', 'range', 'nsv', 'fdr', 'annotation', 'field_chr',\
-    'field_type','field_start','field_end','field_sep', 'n', 'mapq', 'mapqx'  ]
+# update and complete parameters with command line arguments
 
     for categorie in paramsForUp:
-        if categorie in updatable and categorie in params and params[categorie] != None:
-            paramsForUp[categorie]=params[categorie]
-    
-    order = ['in', 'mapq', 'mapqx', 'out', 'vcf', 'stats', 'nsv', 'fdr', 'range', 'n', 'annotation', \
-    'field_chr', 'field_type','field_start','field_end','field_sep'  ]
-    with open(paramfile,"w") as pfile:
-        for cate in order:
-            if cate == "range" and "range" in paramsForUp.keys():
-                if isinstance( paramsForUp[cate], list):
-                    paramsForUp[cate] = ','.join(map(str, paramsForUp[cate]))
-            try:
-                pfile.write("%s%s%s\n" % (cate,"=", paramsForUp[cate]))  
-            except KeyError:
-                pfile.write("%s%s%s\n" % (cate,"=", params[cate])) 
- 
-    #Obselete
-    check = {
-    "out":"NA","stats":"NA","annotation":"NA", "field_chr":1,"field_type":3,\
-    "field_start":4,"field_end":5,"sep":";",\
-    "range":"all","n":6,"fdr":0.01,"nsv":100000}
-    
-    for val in check:
-        if val not in params:
-                params[val] = check[val]
-        elif not params[val]:
-                params[val] = check[val]
+        if categorie.lower() not in params:
+            params[categorie]=paramsForUp[categorie]
+        else:
+            if isDefault(categorie, params[categorie]) and paramsForUp[categorie] != params[categorie] :
+                params[categorie]=paramsForUp[categorie]
+
     if not params["out"] :
         params["out"] = params["in"]+"_Ulysses"
     if not params["stats"]:
         params["stats"] = params["in"]+"_stats.txt"
-    
-    return list_chr_real
 
-    
+    return 
+   
+ 
 #-------------------------------------------------------------------------
 
 
 
 params, paramfile, typesv = parser()
+completeParams(params, paramfile)
+stats, chrDicos = U.prepare_detection(params)
 
 
-typesv= typesv.split('--')
-if len(typesv)==1:
-    typesv=typesv[0]
-    onlyStatPerform = False
-elif typesv[1] == 'stats':
-    typesv=typesv[0]
-    onlyStatPerform = True
-else:
-    typesv=typesv[0]
-    onlyStatPerform = False
-    
-
-list_chr_real = completeParams(params, paramfile)
-
-
-
-
-
-
-
-#print "typesv", typesv, onlyStatPerform
-params = U.get_run_info(paramfile)   
+#params = U.get_run_info(paramfile)   
 dicovcf = {}
 
 if typesv.lower() == "all":
-    pval_seuil_del, pval_seuil_sins = deletion.launch(paramfile, onlyStatPerform, list_chr_real)
+    pval_seuil_del, pval_seuil_sins = deletion.launch(params, stats, chrDicos)
     print "End of deletion detection"
     gc.collect()
     os.system("date")    
-    pval_seuil_dup = duplication.launch(paramfile, onlyStatPerform, list_chr_real)
+    pval_seuil_dup = duplication.launch(params, stats, chrDicos)
     print "End of duplication detection"
     os.system("date")    
     gc.collect()
 
-    pval_seuil_inv = inversions.launch(paramfile, onlyStatPerform, list_chr_real)
+    pval_seuil_inv = inversions.launch(params, stats, chrDicos)
     print "End of inversions detection"
     gc.collect()
 
-    pval_seuil_ins, pval_seuil_rt, pval_seuil_nrt = detect_inter.launch(paramfile, onlyStatPerform, list_chr_real)
+    pval_seuil_ins, pval_seuil_rt, pval_seuil_nrt = detect_inter.launch(params, stats, chrDicos)
     print "End of inter-chromosomal SV detection"
     gc.collect()
     os.system("date")    
@@ -269,7 +240,7 @@ if typesv.lower() == "all":
         U.write_VCF(params["out"]+".vcf",dicovcf, params["vcf"], params)
     
 elif typesv.upper() == "DUP":
-    pval_seuil_dup = duplication.launch(paramfile, onlyStatPerform, list_chr_real)
+    pval_seuil_dup = duplication.launch(params, stats, chrDicos)
     print "End of duplication detection"
     gc.collect()
     os.system("date")  
@@ -282,7 +253,7 @@ elif typesv.upper() == "DUP":
 elif typesv.upper() == "DEL":
     
     
-    pval_seuil_del, pval_seuil_sins = deletion.launch(paramfile, onlyStatPerform, list_chr_real)
+    pval_seuil_del, pval_seuil_sins = deletion.launch(params, stats, chrDicos)
     print "End of deletion detection"
     gc.collect()
     os.system("date")
@@ -292,7 +263,7 @@ elif typesv.upper() == "DEL":
         U.write_VCF(params["out"]+"."+typesv.upper()+".vcf",dicovcf, params["vcf"], params)
 
 elif typesv.upper() == "INV":
-    pval_seuil_inv = inversions.launch(paramfile, onlyStatPerform, list_chr_real)
+    pval_seuil_inv = inversions.launch(params, stats, chrDicos)
     print "End of inversions detection"
     gc.collect()
     os.system("date")
@@ -301,7 +272,7 @@ elif typesv.upper() == "INV":
         U.write_VCF(params["out"]+"."+typesv.upper()+".vcf",dicovcf, params["vcf"], params)
 
 elif typesv.upper() == "INTER":
-    pval_seuil_ins, pval_seuil_rt, pval_seuil_nrt = detect_inter.launch(paramfile, onlyStatPerform, list_chr_real)
+    pval_seuil_ins, pval_seuil_rt, pval_seuil_nrt = detect_inter.launch(params, stats, chrDicos)
     print "End of inter-chromosomal SV detection"
     gc.collect()
     os.system("date")

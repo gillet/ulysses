@@ -39,8 +39,8 @@ if(length(options)<20){
 	}
 
 if(debug==TRUE) {print("intro1")}
-
-
+if(debug==TRUE) {print(options)}
+if(debug==TRUE) {print("FIN OPTIONS")}
 #read parameters from input
 IS.mean <- as.numeric(options[1])
 IS.med <- as.numeric(options[2])

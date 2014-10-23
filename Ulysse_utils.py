@@ -162,8 +162,8 @@ def _format_vcffile(dictreader, vcffile, Header, svtype, fdr_threshlod, lib, par
 ##ALT=<ID=RT,Description="Reciprocal Translocation">\n\
 ##ALT=<ID=NRT,Description="Non Reciprocal Translocation">\n\
 ##FILTER=<ID=fdr,Description="SV below FDR">\n\
-##FILTER=<ID=q"""+params['mapq']+""",Description="PS average mapping quality below """+params['mapq']+"""">\n\
-##FILTER=<ID=q"""+params['mapqx']+""",Description="PS average mapping quality below """+params['mapqx']+"""">\n\
+##FILTER=<ID=q"""+str(params['mapq'])+""",Description="PS average mapping quality below """+str(params['mapq'])+"""">\n\
+##FILTER=<ID=q"""+str(params['mapqx'])+""",Description="PS average mapping quality below """+str(params['mapqx'])+"""">\n\
 ##INFO=<ID=SOMATIC,Number=0,Type=Flag,Description="SOMATIC, GERMLINEor UNKNOWN status">\n\
 ##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of Structural variant">\n\
 ##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant">\n\
@@ -428,6 +428,7 @@ def get_run_info(fichier):
     "mapq":"minimum mapping quality of reads to select a PS",\
     "out":"name of output file",\
     "stats":"name of statistics file indicating mean=X, median=Y and MAD=Z",\
+    "only_stats":"If true, only statistical tests are performed",\
     "NSv":"Maximum number of expected SV candidate",\
     "annotation":"name of file containing coordinates of genetic elements \
     (centromere and telomere are necessary)",\
@@ -440,11 +441,15 @@ def get_run_info(fichier):
     "n":"factor for definition of d and ics parameters",\
     "fdr":"limit for deletion fdr", "mapq":"minimum mapping quality for \
      the 2 reads of a given PS to be considered"}
-
+    
     for cle, valeur in pars.items():
         if cle == "range" and valeur != "all":
             pars[cle] = get_range(valeur)
+        elif cle in ['mapq', 'mapqx', 'nsv', 'field_type', 'field_start', 'field_end']:
+            
+            pars[cle] = int(valeur)
 
+    
     pars["fdr"] = float(pars["fdr"])
 
     if len(pars) < len(checkf):
@@ -523,22 +528,10 @@ def read_stats(statfile):
     return stats, chrDicos
 
 #--------------------------------------------------------------------------
-def prepare_detection(sv_type, run_info, bam_file):
-    """ Create output files, read stat files, read run info
+def prepare_detection(params):
+    """ Read stat files, read run info
     """
-
-    params = get_run_info(run_info)
-
-    if sv_type == "BAMprocess":
-         stats, chrDicos = {},{}
-         stats["chromosome_prefix"] = "" 
-    else:
-	if not testFile(params["stats"]):
-	    print "\n\n\t************** Error : File "+params["stats"]+" does not exist\n"
-            sys.exit()
-	
-        stats, chrDicos = read_stats(params["stats"])
-    
+    stats, chrDicos = read_stats(params["stats"])
 
     if params["range"] == "all":
         liste = chrDicos.keys()
@@ -551,7 +544,7 @@ def prepare_detection(sv_type, run_info, bam_file):
             liste.append(stats["chromosome_prefix"]+str(cx))
         params["range"] = liste
 
-    return params, stats, chrDicos
+    return stats, chrDicos
 
 #--------------------------------------------------------------------------
 def get_subtelo_limits(params):
@@ -584,20 +577,21 @@ def get_subtelo_limits(params):
 def get_centro_coords(params):
     """ Retrieve the coordinates of centromeres from annotation file"""
     centrom=[]
-    
-    if os.path.isfile(params["annotation"]):
+
+    if params["annotation"] != 'None': #eval(params["annotation"]):
         
         with open(params["annotation"], "r") as elems:
             
             temp = [pi[:-1] for pi in elems if "centromere" in pi.lower()]
         for pi in temp:
             ii = pi.split()
-            
+
             
 #            if params["field_sep"] == ";":
 #                ii = pi.split(";")
             if params["field_sep"] not in ['Tb', '\t', ' ', 'tb']:
                 ii = pi.split(params["field_sep"])
+                
                 
             if len(ii)<2:
                 sys.exit("\n *** Error: Annotation file is note correctly formated or separator not specified ***\n")
@@ -606,12 +600,11 @@ def get_centro_coords(params):
                 centrom.append([ii[int(params["field_chr"])-1], int(ii[int(params["field_start"])-1]),
                             int(ii[int(params["field_end"])-1])]) #chr, start, end
                             
-    elif params["annotation"] != 'NA':
-        msg = "\n*** Error: centromere annotation file --> "+params["annotation"]+" <-- not found ***\n"
-        sys.exit(msg)
     
-    print"Centromeres:" #, centrom
-    Ualex.printplus(centrom)
+        print"Centromeres:" #, centrom
+        Ualex.printplus(centrom)
+    else:
+        print "\nCentromeres positions not given. Distinction between INS and RT will not be optimal\n"
     return centrom
 
 #--------------------------------------------------------------------------
@@ -1591,25 +1584,19 @@ def getN(fileIn, tipe, list_chr_real, prefix):
         num = 2
     else:
         num = 1
-    #print "totototot", list_chr_real
-    if len(list_chr_real)==3 and list_chr_real[0]=='a' and list_chr_real[1]=='l' and list_chr_real[2]=='l':
-        #print "titi", list_chr_real
-        #if ''.join(list_chr_real)=='all':
-        if list_chr_real[0]=='a' and list_chr_real[1]=='l' and list_chr_real[2]=='l':
-            with open(fileIn, "r") as f:
-                line = f.readline().rstrip().split(" ")
-                dicos = {}
-                while line:
-                    line = f.readline().rstrip().split(" ") 
-                    #print line
-                    if line == ['']:
-                    	   break
-                    dicos[line[0]] = line[num]
-        #print dicos
+    if ''.join(list_chr_real)=='all':
+        with open(fileIn, "r") as f:
+            line = f.readline().rstrip().split(" ")
+            dicos = {}
+            while line:
+                line = f.readline().rstrip().split(" ") 
+                if line == ['']:
+                       break
+                dicos[line[0]] = line[num]
         
         return sum([int(dicos[x]) for x in dicos.keys()])
-    #print num, list_chr_real, tipe
     else:
+        #print num, list_chr_real, tipe
         if list_chr_real[0] == "noGood666":
             return 100
         else:
@@ -1624,9 +1611,9 @@ def getN(fileIn, tipe, list_chr_real, prefix):
                     if lineT:
                         line = lineT.rstrip().split(" ")
                         dicos[line[0]] = line[num]
-            #print list_chr_real
             #print dicos
-            return sum([int(dicos[prefix+ str(x)]) for x in list_chr_real])
+            #return sum([int(dicos[prefix+ str(x)]) for x in list_chr_real])
+            return sum([int(dicos[str(x)]) for x in list_chr_real])
 
 #--------------------------------------------------------------------------
 def getMinPSvalue(minPS):

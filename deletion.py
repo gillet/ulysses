@@ -619,7 +619,7 @@ def runStatsDel(params, stats, chrDicos):
     #print "pvals", pval_seuil_del, pval_seuil_sins
     return pval_seuil_del, pval_seuil_sins
 #------------------------------------------------------------------------------        
-def runDetectionDel(params, stats, chrDicos, list_chr_real):    
+def runDetectionDel(params, stats, chrDicos):    
     
     
     if stats["ps_type"] == "MP":
@@ -639,9 +639,6 @@ def runDetectionDel(params, stats, chrDicos, list_chr_real):
 # START ALEX PARAMETERS #######################################################
     list_chr_names = "SEP".join(params["range"])
     list_chr_length = "SEP".join([ str(chrDicos[x]) for x in params["range"] ])
-    #list_chr_length = "SEP".join([str(x) for x in chrDicos.values()])
-    #list_chr_names = "SEP".join(chrDicos.keys())
-    
     
     #ATTENTION sval que pour del mais le donner tout le temps
     sval = stats["median"] + n * stats["mad"]
@@ -652,7 +649,7 @@ def runDetectionDel(params, stats, chrDicos, list_chr_real):
     ps_min, infoMsg = Ualex.define_MinPS("DEL", stats, params["nsv"], 
         list_chr_length, list_chr_names, detectionFile, params["in"] ,
         params["in"]+"_dist.table", sval, params["fdr"], params["out"], stats["rl"], 
-        params["n"], list_chr_real)
+        params["n"], params["range"])
 
     with open(params["out"]+".DEL.report.out","a") as fileo:
         fileo.write("\n-----------\tDetection of Deletion\n")
@@ -679,11 +676,6 @@ def runDetectionDel(params, stats, chrDicos, list_chr_real):
         #os.system("date")
         classorix, ntot  = ReadFilesBAM(params, cx, orientation, dicQualDEL)
 
-###################################################################################################
-#### TEMPORAIRE A CAUSE DES CHIMERES (BAM file: flag pas ok, il peut y avoir 2 primary reads)
-        classorix = list(set([tuple(i) for i in classorix]))
-######################################################################################################          
-        
         
         #print "\nScanning ", cx,"with", len(classorix), "PS"
         print "Processing", cx, "- Nb of discordant PS:", \
@@ -783,32 +775,10 @@ def runDetectionDel(params, stats, chrDicos, list_chr_real):
     return pval_seuil_del, pval_seuil_sins
 
 #------------------------------------------------------------------------------
-def launch(paramfile, onlyStatPerform, list_chr_real):
+def launch(params, stats, chrDicos):
 
-
-    """
-    sys.argv[1] = Name of parameter file
-    """
-    
-    if os.path.isfile(paramfile):
-        params = U.get_run_info(paramfile)
-        params, stats, chrDicos = U.prepare_detection("deletions", paramfile,
-                                                      "NA")
-        #if ''.join(list_chr_real)!='all':
-        #    list_chr_real = [ stats["chromosome_prefix"] + str(x) for x in list_chr_real ]
-        
-        #Ualex.printplus(params)
-        if onlyStatPerform:
-            pval_seuil_del, pval_seuil_sins = runStatsDel(params, stats, chrDicos)
-        else:
-            pval_seuil_del, pval_seuil_sins = runDetectionDel(params, stats, chrDicos, list_chr_real)
-        return pval_seuil_del, pval_seuil_sins
-        
+    if params["only_stats"]:
+        pval_seuil_del, pval_seuil_sins = runStatsDel(params, stats, chrDicos)
     else:
-        print "Error :", paramfile, "doesn't exist"
-        return 1,1
-
-#------------------------------------------------------------------------------
-if (__name__)  ==  "__main__":
-    paramfile = U.parser("deletions")
-    launch(paramfile)
+        pval_seuil_del, pval_seuil_sins = runDetectionDel(params, stats, chrDicos)
+    return pval_seuil_del, pval_seuil_sins

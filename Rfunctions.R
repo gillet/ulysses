@@ -505,6 +505,7 @@ fixeMinps <- function(tipe, ISddist, ISc, l, d, n, seuil, xdiff){
 
 
 fixeMinps.2 <- function(tipe, ISddist, ISc, l, d, n, seuil, xdiff){
+  if(debug==TRUE) {print(paste("seuil", seuil, sep="   "))}
   c10k <- seuil+1 #sets the initial number of expexted SV (c10k) to more than the threshold "seuil" 
   minps <- 2 #we first test the number of expected SV for clusters of size "minps"
   nPS = 10
@@ -529,6 +530,7 @@ fixeMinps.2 <- function(tipe, ISddist, ISc, l, d, n, seuil, xdiff){
     i = 1 # make index
     #print(pISs)
     if(debug==TRUE) {print("INfixeMinPS.1.3")}
+    if(debug==TRUE) {print(paste("c10K", c10k, sep="   "))}
     while(c10k > seuil & minps < 1000){  #calculate the expected number of clusters and stop when c10k < to seuil
       #pIS <- getPIS.2(ISddist, ISc, minps) #get the proba of "minps" to have a compatible IS
       if(debug==TRUE) {print(c10k)}

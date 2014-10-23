@@ -37,11 +37,11 @@ def runRForClusterThreshold(tipe, ISmean, ISmed, ISmad, ISsd, genomeLength,
         os.system(com)
         print "Compilation Done\n"
 
-    #print "****", nDiscordant
     param = [ISmean, ISmed, ISmad, ISsd, nDiscordant, genomeLength, numberOfInterChromosomalFile, \
     seuil_cluster, functionsR, tipe, list_chr_length, list_chr_names, detectionFile, dist_table, \
     sval, seuil_fdr, RL, n_param, numberOfIntraChromosomalPSFile, f]
 
+    
 
     param_str = map(str, param)
     com = ["Rscript", str(script)]

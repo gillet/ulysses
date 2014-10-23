@@ -101,15 +101,6 @@ conversion is on\n\n")
     clasdifx = []
 
 
-###################################################################################################
-#### TEMPORAIRE A CAUSE DES CHIMERES (BAM file: flag pas ok, il peut y avoir 2 primary reads)
-    for pair, PSS in Xsome.iteritems():
-        #print "pair", pair
-        clasx = list(set([tuple(i) for i in PSS]))
-        Xsome[pair]=clasx
-######################################################################################################
-
-
 
 # START ALEX PARAMETERS #######################################################
 #   numberOfInterChromosomalPSFile = params["in"]+"_PScandidate_per_Xsome_pairs.csv"
@@ -431,26 +422,13 @@ def runStatsInter(params, stats, chrDicos):
                              
 
 #--------------------------------------------------------------------------
-def launch(paramfile, onlyStatPerform, list_chr_real):
+def launch(params, stats, chrDicos):
 
     print "**************** Detection of Inter chromosomal SV"
 
-
-    if os.path.isfile(paramfile):
-        params, stats, chrDicos = U.prepare_detection("interX", paramfile,
-                                                      "NA")
-        
-        if onlyStatPerform:
-            pval_seuil_ins, pval_seuil_tr, pval_seuil_tn = runStatsInter(params, stats, chrDicos)
-        else:
-            pval_seuil_ins, pval_seuil_tr, pval_seuil_tn = runDetectionInter(params, stats, chrDicos)        
-        
-        return pval_seuil_ins, pval_seuil_tr, pval_seuil_tn
-
+    if params["only_stats"]:
+        pval_seuil_ins, pval_seuil_tr, pval_seuil_tn = runStatsInter(params, stats, chrDicos)
     else:
-        print "Error :", paramfile, "doesn't exist"
+        pval_seuil_ins, pval_seuil_tr, pval_seuil_tn = runDetectionInter(params, stats, chrDicos)        
 
-#------------------------------------------------------------------------------
-if (__name__)  ==  "__main__":
-    paramfile = U.parser("interchromosomal")
-    launch(paramfile)
+    return pval_seuil_ins, pval_seuil_tr, pval_seuil_tn

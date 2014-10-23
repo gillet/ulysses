@@ -19,7 +19,6 @@ except ImportError:
     sys.exit()
 
 import argparse
-import pkgutil
 
 
 import Ulysse_utils as U
@@ -350,7 +349,7 @@ def createParamFile(args):
         file.write("fdr=0.01\n")
         file.write("range=all\n")
         file.write("n="+str(args.n)+"\n")
-        file.write("annotation=NA\n")
+        file.write("annotation=None\n")
         file.write("######### Informations for annotation file\n") #a virer car que GFF?
         file.write("field_chr=1\n")
         file.write("field_type=3\n")
@@ -407,7 +406,7 @@ pre-processing before detection of Structural Variations"
     
     print "\n\n\noooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo\n\n"    
     parser = argparse.ArgumentParser(description=message)
-    print "\t\t\t\t---  ULYSSES ReadBAM 20130911  ---     \n\n"
+    print "\t\t\t\t---  ULYSSES ReadBAM 20141023  ---     \n\n"
     print "  Ulysses: Accurate detection of rare structural variations from high coverage genome sequencing\n"
     print "\t\t Alexandre Gillet, Hugues Richard, Gilles Fischer and Ingrid Lafontaine\n"
     print "\t\t\t http://www.lcqb.upmc.fr/ulysse\n\n"
@@ -476,10 +475,10 @@ if (__name__) == "__main__":
         os.system("date")
         
         
-        params, stat, rien = U.prepare_detection("BAMprocess", paramfile, 
-                                                     bamfile)
 
-        
+
+        params = U.get_run_info(paramfile)
+
         chrnames = chrDicos.keys()
         chrnames.sort()
         
