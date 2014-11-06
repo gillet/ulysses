@@ -2,7 +2,7 @@
 """
 Created on Wed Jul 31 16:58:42 2013
 
-@author: ingrid
+@author: ingrid & AGM
 """
 
 import os, sys

@@ -10,7 +10,7 @@ suppressPackageStartupMessages(suppressWarnings(library(tcltk)))
 # the input from Ulysse python algo.
 
 debug = TRUE
-#debug = FALSE
+debug = FALSE
 
 if(debug==TRUE) {print(paste("mode debug =", debug))}
 
