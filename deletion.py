@@ -776,7 +776,7 @@ def runDetectionDel(params, stats, chrDicos):
 
 #------------------------------------------------------------------------------
 def launch(params, stats, chrDicos):
-
+    
     if params["only_stats"]:
         pval_seuil_del, pval_seuil_sins = runStatsDel(params, stats, chrDicos)
     else:

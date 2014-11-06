@@ -162,8 +162,8 @@ def _format_vcffile(dictreader, vcffile, Header, svtype, fdr_threshlod, lib, par
 ##ALT=<ID=RT,Description="Reciprocal Translocation">\n\
 ##ALT=<ID=NRT,Description="Non Reciprocal Translocation">\n\
 ##FILTER=<ID=fdr,Description="SV below FDR">\n\
-##FILTER=<ID=q"""+str(params['mapq'])+""",Description="PS average mapping quality below """+str(params['mapq'])+"""">\n\
-##FILTER=<ID=q"""+str(params['mapqx'])+""",Description="PS average mapping quality below """+str(params['mapqx'])+"""">\n\
+##FILTER=<ID=q"""+str(params['mapq'])+""",Description="RP average mapping quality below """+str(params['mapq'])+"""">\n\
+##FILTER=<ID=q"""+str(params['mapqx'])+""",Description="RP average mapping quality below """+str(params['mapqx'])+"""">\n\
 ##INFO=<ID=SOMATIC,Number=0,Type=Flag,Description="SOMATIC, GERMLINEor UNKNOWN status">\n\
 ##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of Structural variant">\n\
 ##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant">\n\
@@ -172,9 +172,9 @@ def _format_vcffile(dictreader, vcffile, Header, svtype, fdr_threshlod, lib, par
 ##INFO=<ID=LIB,Number=1,Type=String,Description="Name of the input file">\n\
 ##INFO=<ID=CHR,Number=1,Type=String,Description="(pair of) chromosome(s)">\n\
 ##INFO=<ID=ID,Number=1,Type=String,Description="Internal ID">\n\
-##INFO=<ID=nbPS,Number=1,Type=Integer,Description="Number of PS describing the SV">\n\
-##INFO=<ID=nbA,Number=1,Type=Integer,Description="nb of PS describing the SV on chromosome A">\n\
-##INFO=<ID=nbB,Number=1,Type=Integer,Description="nb of PS describing the SV on chromosome B">\n\
+##INFO=<ID=nbRP,Number=1,Type=Integer,Description="Number of RP describing the SV">\n\
+##INFO=<ID=nbA,Number=1,Type=Integer,Description="nb of RP describing the SV on chromosome A">\n\
+##INFO=<ID=nbB,Number=1,Type=Integer,Description="nb of RP describing the SV on chromosome B">\n\
 ##INFO=<ID=LBA,Number=1,Type=Integer,Description="5' border of the SV on chromosome A">\n\
 ##INFO=<ID=RBA,Number=1,Type=Integer,Description="3' border of the SV on chromosome A">\n\
 ##INFO=<ID=DA,Number=1,Type=Integer,Description="SV range on chromosome A between right and left borders">\n\
@@ -195,7 +195,7 @@ def _format_vcffile(dictreader, vcffile, Header, svtype, fdr_threshlod, lib, par
 
             writer.write('#{}'.format('\t'.join(_vcf_fields)))
         info_fields = {'LIB':'Library', 'CHR':'(pair of) chromosome(s)', 'ID':'ID', 
-                       'nbPS':'nbPS', 'nbA':'nbA', 'nbB':'nbB', 'LBA':'left_borderA', 
+                       'nbPS':'nbRP', 'nbA':'nbA', 'nbB':'nbB', 'LBA':'left_borderA', 
                        'RBA':'right_borderA', 'DA':'deltaA', 'CPA':'cen_posA', 
                        'LBB':'left_borderB', 'RBB':'right_borderB', 'DB':'deltaB',
                        'CPB':'cen_posB', 'SVMI':'SV_size_min', 'SVM':'SV_size_max', 
@@ -204,7 +204,7 @@ def _format_vcffile(dictreader, vcffile, Header, svtype, fdr_threshlod, lib, par
         #print "inv_info_fields", inv_info_fields
                         #'PBAL':'p-balanced', 'COV':'cov',
         order_fields = ['Library', '(pair of) chromosome(s)', 'ID',
-               'nbPS', 'nbA', 'nbB', 'left_borderA', 
+               'nbRP', 'nbA', 'nbB', 'left_borderA', 
                'right_borderA', 'deltaA', 'cen_posA', 'left_borderB', 
                'right_borderB', 'deltaB', 'cen_posB', 'SV_size_min', 
                'SV_size_max', 'p-balanced', 'cov', 'AvrQual', 'pval']
@@ -236,9 +236,9 @@ def _format_vcffile(dictreader, vcffile, Header, svtype, fdr_threshlod, lib, par
             #elif (int(line['nbA'])<2 or int(line['nbB'])<2) and svtype =='INV':
             #    FILTER = 'LowQual'
             elif float(line[_tsv_fields[18]]) < int(params['mapqx']) and svtype in ['NRT', 'sINS', 'RT', 'INS']:
-                FILTER = 'q'+params['mapqx']
+                FILTER = 'q'+str(params['mapqx'])
             elif float(line[_tsv_fields[18]]) < int(params['mapq']) and svtype in ['DUP', 'DEL', 'INV']:
-                FILTER = 'q'+params['mapq']
+                FILTER = 'q'+str(params['mapq'])
             else:
                 FILTER = 'PASS'
 
@@ -468,30 +468,30 @@ def create_files(sv_type, fichier, deletion = False):
     #deletion, duplication, inversions
     if deletion:
         out = open(fichier + "_" + sv_type + "_bySV.csv", "w")
-        out.write("\"Library\";\"(pair of) chromosome(s)\";\"ID\";\"nbPS\";\"nbA\";\
+        out.write("\"Library\";\"(pair of) chromosome(s)\";\"ID\";\"nbRP\";\"nbA\";\
 \"nbB\";\"left_borderA\";\"right_borderA\";\"deltaA\";\"cen_posA\";\
 \"left_borderB\";\"right_borderB\";\"deltaB\";\"cen_posB\";\"SV_size_min\";\
 \"SV_size_max\";\"p-balanced\";\"\n")
         out.close()
         out = open(fichier +"_" +sv_type + "_byPS.csv", "w")
-        out.write("\"Library\";\"(pair of) chromosome(s)\";\"ID\";\"nbPS\";\"nbA\";\
+        out.write("\"Library\";\"(pair of) chromosome(s)\";\"ID\";\"nbRP\";\"nbA\";\
 \"nbB\";\"left_borderA\";\"right_borderA\";\"deltaA\";\"cen_posA\";\
 \"left_borderB\";\"right_borderB\";\"deltaB\";\"cen_posB\";\"SV_size_min\";\
-\"SV_size_max\";\"p-balanced\";\"PS\";\"str1\";\"chr1\";\"pos1\";\"st2r\";\
+\"SV_size_max\";\"p-balanced\";\"RP\";\"str1\";\"chr1\";\"pos1\";\"st2r\";\
 \"chr2\";\"pos2\";\"L\"\n")
         out.close()
     else:
         out = open(fichier + "_" + sv_type + "_bySV.csv", "w")
-        out.write("\"Library\";\"(pair of) chromosome(s)\";\"ID\";\"nbPS\";\"nbA\";\
+        out.write("\"Library\";\"(pair of) chromosome(s)\";\"ID\";\"nbRP\";\"nbA\";\
 \"nbB\";\"left_borderA\";\"right_borderA\";\"deltaA\";\"cen_posA\";\
 \"left_borderB\";\"right_borderB\";\"deltaB\";\"cen_posB\";\"SV_size_min\";\
 \"SV_size_max\";\"p-balanced\";\"cov\"\n")
         out.close()
         out = open(fichier +"_" +sv_type + "_byPS.csv", "w")
-        out.write("\"Library\";\"(pair of) chromosome(s)\";\"ID\";\"nbPS\";\"nbA\";\
+        out.write("\"Library\";\"(pair of) chromosome(s)\";\"ID\";\"nbRP\";\"nbA\";\
 \"nbB\";\"left_borderA\";\"right_borderA\";\"deltaA\";\"cen_posA\";\
 \"left_borderB\";\"right_borderB\";\"deltaB\";\"cen_posB\";\"SV_size_min\";\
-\"SV_size_max\";\"p-balanced\";\"cov\";\"PS\";\"str1\";\"chr1\";\"pos1\";\"str2\";\
+\"SV_size_max\";\"p-balanced\";\"cov\";\"RP\";\"str1\";\"chr1\";\"pos1\";\"str2\";\
 \"chr2\";\"pos2\";\"L\"\n")
         out.close()
 
@@ -1112,8 +1112,8 @@ def addMeanSVQuality(bySVfileName, byPSfileName, dicQual):
         SVfull[chromo] = split #delete the list of PS and replace it by this clean dic "ID SV = PSs"
     #
     #
-    #get position of PS ID in the header
-    po = getEltPosition(bPSheader, 'PS')
+    #get position of PS ID in the header #PS nom called RP !!
+    po = getEltPosition(bPSheader, 'RP')
     #print "po", po
     #
     #Add qualities to byPS files

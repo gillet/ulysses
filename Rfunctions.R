@@ -359,7 +359,7 @@ getClusterAllCleanForINTER <- function(xdiff, detection, d, l, t.n, detectionFil
 getClusterAllDetailForINTRA <- function(xdiff, detection, d, l, t.n, detectionFile, tipe, cAll) {
     
   #rename the "(pair of) chromosome(s)" of cAll to be able to merge with xdiff
-  names(cAll)=c("chr", "nbPS", "freq")
+  names(cAll)=c("chr", "nbRP", "freq")
   
   #SV were not found in some chr, remove them from xdiff
   disp = cAll$chr
@@ -480,7 +480,7 @@ fixeMinps <- function(tipe, ISddist, ISc, l, d, n, seuil, xdiff){
     ###### INS, TN, TR (2 chr cobination)
     
     while(c10k > seuil & minps < 1000){ #calculate the expected number of clusters and stop when c10k < to seuil
-      xdiff[["nbPS"]] <- minps #adds "minps" to the interchromosomal stats (xdiff)
+      xdiff[["nbRP"]] <- minps #adds "minps" to the interchromosomal stats (xdiff)
       c10k <- getC10kFor2ChrCombinations(xdiff, tipe) #returns t
       minps <- minps + 1 #number of expected overlapping clusters of size "minps"
     }
@@ -552,7 +552,7 @@ fixeMinps.2 <- function(tipe, ISddist, ISc, l, d, n, seuil, xdiff){
     if(debug==TRUE) {print("INfixeMinPS.inter1")}
     
     while(c10k > seuil & minps < 1000){ #calculate the expected number of clusters and stop when c10k < to seuil
-      xdiff[["nbPS"]] <- minps #adds "minps" to the interchromosomal stats (xdiff)
+      xdiff[["nbRP"]] <- minps #adds "minps" to the interchromosomal stats (xdiff)
       #if(debug==TRUE) {print(head(xdiff, 3))}
       c10k <- getC10kFor2ChrCombinations(xdiff, tipe) #returns t
       if(debug==TRUE) {cat(paste(minps, "PS: ", c10k, " SV\n", sep=""))}
@@ -816,16 +816,16 @@ getPCOMPINTER.new.hugues <- function(d, tipe, minps, l1, l2){
 ### From the ClusterAll file (frequency by nbPS classes from detection file), get all pcomp values
 ###
 getAllpCOMP <- function(tipe, l, d, ISddist, ISc, IS.sd, IS.mad, clusterAll) {
-  dfpcomp=data.frame(nbPS=0, pcomp=0)
+  dfpcomp=data.frame(nbRP=0, pcomp=0)
   #nPS <- max(clusterAll[,2])
   #pISs <- ComputePIS.fast(ISddist, ISc, nPSmax = nPS)
   
-  for(i in clusterAll$nbPS){
+  for(i in clusterAll$nbRP){
     minps <- as.numeric(i)
     pIS <- getPIS.2(ISddist, ISc, minps) #get the proba of "minps" to have a compatible IS
     #print(pIS)
     pcompVal <- getPCOMP(l,d,tipe, pIS, minps) #proba for "minps" to be overlapping
-    tmp = data.frame(nbPS=minps, pcomp=pcompVal)
+    tmp = data.frame(nbRP=minps, pcomp=pcompVal)
     dfpcomp=rbind(dfpcomp, tmp)
   }
   #dfpcomp <- dfpcomp[-1,]
@@ -836,18 +836,18 @@ getAllpCOMP <- function(tipe, l, d, ISddist, ISc, IS.sd, IS.mad, clusterAll) {
 }
 
 getAllpCOMP.2 <- function(tipe, l, d, ISddist, ISc, IS.sd, IS.mad, clusterAll) {
-  dfpcomp=data.frame(nbPS=0, pcomp=0)
+  dfpcomp=data.frame(nbRP=0, pcomp=0)
   
-  nPS <- max(clusterAll$nbPS)
+  nPS <- max(clusterAll$nbRP)
   pISs <- ComputePIS.fast(ISddist, ISc, nPSmax = nPS)
   
-  for(i in clusterAll$nbPS){
+  for(i in clusterAll$nbRP){
     minps <- as.numeric(i)
     #pIS <- getPIS.2(ISddist, ISc, minps) #get the proba of "minps" to have a compatible IS
     #print(pIS)
     pIS <- pISs[minps-1]
     pcompVal <- getPCOMP(l,d,tipe, pIS, minps) #proba for "minps" to be overlapping
-    tmp = data.frame(nbPS=minps, pcomp=pcompVal)
+    tmp = data.frame(nbRP=minps, pcomp=pcompVal)
     dfpcomp=rbind(dfpcomp, tmp)
   }
   #dfpcomp <- dfpcomp[-1,]
@@ -888,7 +888,9 @@ getNbClusters <- function(n,d,l, ISc,f, pis, tipe, unOuDeuxD=1){
 ### Calculate cluster size stats in the detection file
 ###
 getClusterStats <- function(cl, tipe){
+  if(debug==TRUE) {print("getClusterStats1")}
   t = read.csv2(cl, h=T, check.names = FALSE)
+  if(debug==TRUE) {print(head(t,3))}
   #print("tata")
 #   if(tipe=="DUP" | tipe=="INV"){
 # 	  u = as.data.frame(table(t$nbPS))
@@ -902,10 +904,10 @@ getClusterStats <- function(cl, tipe){
   #yyB <- data.frame( "(pair of) chromosome(s)" = t[[ "(pair of) chromosome(s)"]], nbPS=t$nbB, check.names=F )
   #yy <- rbind(yyA, yyB)
   #u = aggregate(rep(1, nrow(yy)), by = list(x = yy[[ "(pair of) chromosome(s)"]], nbPS = yy$nbPS), sum)
-  
-  yy <- data.frame( "(pair of) chromosome(s)" = t[[ "(pair of) chromosome(s)"]], nbPS=t$nbPS, check.names=F )
-  u = aggregate(rep(1, nrow(yy)), by = list(x = yy[[ "(pair of) chromosome(s)"]], nbPS = yy$nbPS), sum)
-  names(u) = c("(pair of) chromosome(s)", "nbPS", "freq")
+  if(debug==TRUE) {print("getClusterStats2")}
+  yy <- data.frame( "(pair of) chromosome(s)" = t[[ "(pair of) chromosome(s)"]], nbRP=t$nbRP, check.names=F )
+  u = aggregate(rep(1, nrow(yy)), by = list(x = yy[[ "(pair of) chromosome(s)"]], nbRP = yy$nbRP), sum)
+  names(u) = c("(pair of) chromosome(s)", "nbRP", "freq")
 #  }
   u$freq = as.numeric(u$freq)
   return(u)
@@ -921,7 +923,7 @@ getClusterStatsINTER <- function(cl, tipe){
   #print(head(t))
   t$nbAB = paste(t$nbA, t$nbB, sep="-")
   
-  yy <- data.frame( "(pair of) chromosome(s)" = t[[ "(pair of) chromosome(s)"]], nbPS=t$nbPS, nAB=t$nbAB, check.names=F )
+  yy <- data.frame( "(pair of) chromosome(s)" = t[[ "(pair of) chromosome(s)"]], nbRP=t$nbRP, nAB=t$nbAB, check.names=F )
   u = aggregate(rep(1, nrow(yy)), by = list(x = yy[[ "(pair of) chromosome(s)"]], nAB = yy$nAB), sum)
   #print(head(u))
   names(u) = c("(pair of) chromosome(s)", "nAB", "freq")
@@ -948,7 +950,7 @@ getPINS <- function(x, tipe){
 	lj=as.numeric(x['X2len'])
 	d=as.numeric(x['d'])
 	l=as.numeric(x['l'])
-	PS=as.numeric(x['nbPS'])
+	PS=as.numeric(x['nbRP'])
 	
   #print(paste(ndis, li, lj, d, l, PS, sep=" -- "))
   
@@ -976,7 +978,7 @@ getPTR <- function(x, tipe){
 	lj=as.numeric(x['X2len'])
 	d=as.numeric(x['d'])
 	l=as.numeric(x['l'])
-	PS=as.numeric(x['nbPS'])
+	PS=as.numeric(x['nbRP'])
   
 	#pc1=((d/li)^(PS-1))*(d/lj)^(PS-1)
 	#pc2=((d/lj)^(PS-1))*(d/li)^(PS-1)
@@ -1002,7 +1004,7 @@ getPTN <- function(x, tipe){
 	lj=as.numeric(x['X2len'])
 	d=as.numeric(x['d'])
 	l=as.numeric(x['l'])
-	PS=as.numeric(x['nbPS'])
+	PS=as.numeric(x['nbRP'])
   
 # 	pc1=((d/li)^(PS-1))*(d/lj)^(PS-1)
 # 	s=choose(ndis,PS)*pc1/2 #only half of genome concerned

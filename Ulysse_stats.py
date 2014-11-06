@@ -41,14 +41,14 @@ def runRForClusterThreshold(tipe, ISmean, ISmed, ISmad, ISsd, genomeLength,
     seuil_cluster, functionsR, tipe, list_chr_length, list_chr_names, detectionFile, dist_table, \
     sval, seuil_fdr, RL, n_param, numberOfIntraChromosomalPSFile, f]
 
-    
+    #Popen will fail if special characters are present in chromosome names
+    param[11] = '"'+param[11]+'"'
 
     param_str = map(str, param)
     com = ["Rscript", str(script)]
     com.extend(param_str)
     commande = " ".join(com)
-         
-    
+        
     proc= Popen(commande, stdout=PIPE, stderr=PIPE, shell=True)
     procOutput = proc.communicate()
 

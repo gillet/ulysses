@@ -135,7 +135,7 @@ def parser():
     print "\n\nParameter file :", args.p,"\n\n"
     if args.only_stats == True:
         print "Statistics will be be performed for", args.typesv, "\n"
-        return vars(args), os.path.abspath(args.p), args.typesv+"--stats"
+        return vars(args), os.path.abspath(args.p), args.typesv
     else:
         if args.typesv == "all":
             print "All SV type will be detected\n"
@@ -205,8 +205,6 @@ params, paramfile, typesv = parser()
 completeParams(params, paramfile)
 stats, chrDicos = U.prepare_detection(params)
 
-
-#params = U.get_run_info(paramfile)   
 dicovcf = {}
 
 if typesv.lower() == "all":
@@ -251,8 +249,6 @@ elif typesv.upper() == "DUP":
     
 
 elif typesv.upper() == "DEL":
-    
-    
     pval_seuil_del, pval_seuil_sins = deletion.launch(params, stats, chrDicos)
     print "End of deletion detection"
     gc.collect()
