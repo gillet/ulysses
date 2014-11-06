@@ -222,7 +222,7 @@ def AlreadyDel(deletion, elem):
 #------------------------------------------------------------------------------
 def WriteSV(manip, outf, xsome, deletion, select, d, mediane, typesv):
     """ Write Deletion candidates in output files"""
-    out = open(outf+"_"+typesv+"_byPS.csv", "a")
+    out = open(outf+"_"+typesv+"_byRP.csv", "a")
     out2 = open(outf+"_"+typesv+"_bySV.csv", "a")
     ndup = 0
 #    for j in deletion:
@@ -746,7 +746,7 @@ def runDetectionDel(params, stats, chrDicos):
     
         
     #add qualities
-    U.addMeanSVQuality(params["out"]+"_deletions_bySV.csv", params["out"]+"_deletions_byPS.csv", dicQualDEL)
+    U.addMeanSVQuality(params["out"]+"_deletions_bySV.csv", params["out"]+"_deletions_byRP.csv", dicQualDEL)
     
         
     toto, msg, pval_seuil_del = Ualex.functstats("DEL", stats, stats["ndel"], params["nsv"], 
@@ -760,7 +760,7 @@ def runDetectionDel(params, stats, chrDicos):
     if int(stats["median"]) > 10 and (int(stats["median"]) - int(params["n"])*int(stats["mad"]) > 0):
         Ualex.addCovToDelFile(params["in"], params["out"]+"_small_insertions_bySV.csv")
         #add qualities
-        U.addMeanSVQuality(params["out"]+"_small_insertions_bySV.csv", params["out"]+"_small_insertions_byPS.csv", dicQualsINS)
+        U.addMeanSVQuality(params["out"]+"_small_insertions_bySV.csv", params["out"]+"_small_insertions_byRP.csv", dicQualsINS)
         
         toto, msg, pval_seuil_sins = Ualex.functstats("sINS", stats, stats["ndel"], params["nsv"], 
                                  list_chr_length, list_chr_names, 

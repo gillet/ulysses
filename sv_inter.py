@@ -2613,7 +2613,7 @@ def Affiche(xsome, centrom, liste, pair, fich, typesv, nb):
     ### ATTENTION LE GETBORDERS NE MARCHE QUE POUR TRANSLOC ET INSERTIONS
     ### QUID DES SNP GENECONVERSIONS
 
-    out = open(fich+"_"+typesv+"_byPS.csv", "a")
+    out = open(fich+"_"+typesv+"_byRP.csv", "a")
     outp = open(fich+"_"+typesv+"_bySV.csv", "a")
     for ori in liste:
         for sv in liste[ori]:

@@ -426,7 +426,7 @@ def inversions_Etape6_v2(classorix, homo, groupes, signe, summary, minPS):
 #------------------------------------------------------------------------------
 def inversions_Affiche(params, clasamex, liste, chrox, nb, d, minPS):
     """Write results to outpufiles """
-    out = open(params["out"]+"_inversions_byPS.csv", "a")
+    out = open(params["out"]+"_inversions_byRP.csv", "a")
     outp = open(params["out"]+"_inversions_bySV.csv", "a")
     manip = os.path.split(params["in"])[1]
     #print "Affiche Inversion ", liste
@@ -609,7 +609,7 @@ def runDetectionInv(params, stats, chrDicos, list_chr_real):
         nbinv = inversions_Affiche(params, classorix, resumeClean, chrx, 0, D, ps_min)
         
     #add qualities
-    U.addMeanSVQuality(params["out"]+"_inversions_bySV.csv", params["out"]+"_inversions_byPS.csv", dicQual)    
+    U.addMeanSVQuality(params["out"]+"_inversions_bySV.csv", params["out"]+"_inversions_byRP.csv", dicQual)    
     
     print "Detection done\n"
     with open(params["out"]+".INV.report.out","a") as fileo:

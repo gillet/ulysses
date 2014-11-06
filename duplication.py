@@ -178,7 +178,7 @@ def write_DupbyPS(g, clasamex, manip, ndup, chrx, medianSV, start, end, d):
 #    for toto in (manip, str(chrx), ndup, len(g), len(g), -1, start, end, end-start, "NA", -1, -1, -1, "NA", size, size,"NA"):
 #        print n, toto, type(toto)
 #        n = n + 1
-    out = open(manip+"_duplications_byPS.csv", "a")
+    out = open(manip+"_duplications_byRP.csv", "a")
     for nj in g:
         k = clasamex[nj]
         manipw = os.path.split(manip)[1].split("_Ulysses")[0]
@@ -346,10 +346,10 @@ def runDetectionDup(params, stats, chrDicos, list_chr_real):
         fileo.write("results written to "+params["out"]+"_duplications_by[PS/SV].csv\n")
 
     #Remove Sub-groups
-    U.cleanAnySVFilePair(params["out"]+"_duplications_bySV.csv", params["out"]+"_duplications_byPS.csv")    
+    U.cleanAnySVFilePair(params["out"]+"_duplications_bySV.csv", params["out"]+"_duplications_byRP.csv")    
     
     #add qualities
-    U.addMeanSVQuality(params["out"]+"_duplications_bySV.csv", params["out"]+"_duplications_byPS.csv", dicQual)
+    U.addMeanSVQuality(params["out"]+"_duplications_bySV.csv", params["out"]+"_duplications_byRP.csv", dicQual)
     
     toto, msg, pval_seuil_dup = Ualex.functstats("DUP", stats, stats["ndup"], params["nsv"], 
                                  list_chr_length, list_chr_names, 

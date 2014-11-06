@@ -334,17 +334,17 @@ conversion is on\n\n")
     
     
     #Do a final dup removal
-    U.cleanAnySVFilePair(params["out"]+"_insertions_bySV.csv", params["out"]+"_insertions_byPS.csv")
-    U.cleanAnySVFilePair(params["out"]+"_reciprocal_translocations_bySV.csv", params["out"]+"_reciprocal_translocations_byPS.csv")
-    U.cleanAnySVFilePair(params["out"]+"_non_reciprocal_translocations_bySV.csv", params["out"]+"_non_reciprocal_translocations_byPS.csv")
+    U.cleanAnySVFilePair(params["out"]+"_insertions_bySV.csv", params["out"]+"_insertions_byRP.csv")
+    U.cleanAnySVFilePair(params["out"]+"_reciprocal_translocations_bySV.csv", params["out"]+"_reciprocal_translocations_byRP.csv")
+    U.cleanAnySVFilePair(params["out"]+"_non_reciprocal_translocations_bySV.csv", params["out"]+"_non_reciprocal_translocations_byRP.csv")
 
     #add qualities
-    U.addMeanSVQuality(params["out"]+"_insertions_bySV.csv", params["out"]+"_insertions_byPS.csv", dicQual)
-    U.addMeanSVQuality(params["out"]+"_reciprocal_translocations_bySV.csv", params["out"]+"_reciprocal_translocations_byPS.csv", dicQual)
-    U.addMeanSVQuality(params["out"]+"_non_reciprocal_translocations_bySV.csv", params["out"]+"_non_reciprocal_translocations_byPS.csv", dicQual)
+    U.addMeanSVQuality(params["out"]+"_insertions_bySV.csv", params["out"]+"_insertions_byRP.csv", dicQual)
+    U.addMeanSVQuality(params["out"]+"_reciprocal_translocations_bySV.csv", params["out"]+"_reciprocal_translocations_byRP.csv", dicQual)
+    U.addMeanSVQuality(params["out"]+"_non_reciprocal_translocations_bySV.csv", params["out"]+"_non_reciprocal_translocations_byRP.csv", dicQual)
     
     #reorder insertions
-    U.reOrder(params["out"]+"_insertions_bySV.csv", params["out"]+"_insertions_byPS.csv", d)
+    U.reOrder(params["out"]+"_insertions_bySV.csv", params["out"]+"_insertions_byRP.csv", d)
 
     toto, msg, pval_seuil_ins = Ualex.functstats("INS", stats, stats["ninter"], params["nsv"],
                                  list_chr_length, list_chr_names,

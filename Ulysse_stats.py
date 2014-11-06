@@ -559,7 +559,7 @@ def addCovToDelFile(bam, delFile):
 		delF.write("%s\n" % deletion)
 
 	#also add coverage to the byPS file 
-	fDelbyPS = delFile.replace("bySV", "byPS")
+	fDelbyPS = delFile.replace("bySV", "byRP")
 	fDel = open(fDelbyPS)
 	lines = fDel.readlines()
 	header_tmp = lines[0].rstrip().split(";")

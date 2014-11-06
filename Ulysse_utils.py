@@ -111,7 +111,7 @@ def _parse_tsvfile(readable):
 
 
 _tsv_fields = ('Library', '(pair of) chromosome(s)', 
-               'ID', 'nbPS', 'nbA', 'nbB', 'left_borderA', 
+               'ID', 'nbRP', 'nbA', 'nbB', 'left_borderA', 
                'right_borderA', 'deltaA', 'cen_posA', 'left_borderB', 
                'right_borderB', 'deltaB', 'cen_posB', 'SV_size_min', 
                'SV_size_max', 'p-value', 'cov', 'AvrQual', 'pval')
@@ -473,7 +473,7 @@ def create_files(sv_type, fichier, deletion = False):
 \"left_borderB\";\"right_borderB\";\"deltaB\";\"cen_posB\";\"SV_size_min\";\
 \"SV_size_max\";\"p-balanced\";\"\n")
         out.close()
-        out = open(fichier +"_" +sv_type + "_byPS.csv", "w")
+        out = open(fichier +"_" +sv_type + "_byRP.csv", "w")
         out.write("\"Library\";\"(pair of) chromosome(s)\";\"ID\";\"nbRP\";\"nbA\";\
 \"nbB\";\"left_borderA\";\"right_borderA\";\"deltaA\";\"cen_posA\";\
 \"left_borderB\";\"right_borderB\";\"deltaB\";\"cen_posB\";\"SV_size_min\";\
@@ -487,7 +487,7 @@ def create_files(sv_type, fichier, deletion = False):
 \"left_borderB\";\"right_borderB\";\"deltaB\";\"cen_posB\";\"SV_size_min\";\
 \"SV_size_max\";\"p-balanced\";\"cov\"\n")
         out.close()
-        out = open(fichier +"_" +sv_type + "_byPS.csv", "w")
+        out = open(fichier +"_" +sv_type + "_byRP.csv", "w")
         out.write("\"Library\";\"(pair of) chromosome(s)\";\"ID\";\"nbRP\";\"nbA\";\
 \"nbB\";\"left_borderA\";\"right_borderA\";\"deltaA\";\"cen_posA\";\
 \"left_borderB\";\"right_borderB\";\"deltaB\";\"cen_posB\";\"SV_size_min\";\
@@ -1302,7 +1302,7 @@ def cleanAnySVFilePairOLD(bySVfileName, byPSfileName):
 	
 	###print "\nStart removing duplicates in files", bySVfileName, "and", byPSfileName
 	bPStmpMem = csv.reader(open(byPSfileName), delimiter=';', quotechar='"') 
-	print byPSfileName
+	
 	bPStmp = []
 	for row in bPStmpMem:
 		bPStmp.append(row)
