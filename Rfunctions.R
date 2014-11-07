@@ -103,7 +103,7 @@ filterAndSaveFiles <- function(detection, seuil, tipe, detectionFile) {
     msg = paste("!!! Error No FDR performed for ", tipe, ". Either all ", tipe, " are significant or all are not significant !!!")
     message(msg)
     write.table(detection, file = detectionFile, dec=".", sep=";", row.names = FALSE, quote=FALSE) #write to remove " symbol from file
-    detectionFile.byPS.name <- sub("_bySV.csv", "_byPS.csv", detectionFile) #byPS file
+    detectionFile.byPS.name <- sub("_bySV.csv", "_byRP.csv", detectionFile) #byPS file
     detectionFile.byPS <- read.csv2(detectionFile.byPS.name, check.names = FALSE) #read byPS file
     write.table(detectionFile.byPS, file = detectionFile.byPS.name, dec=".", sep=";", row.names = FALSE, quote=FALSE) #write to remove " symbol from file
     stop()
@@ -121,7 +121,7 @@ filterAndSaveFiles <- function(detection, seuil, tipe, detectionFile) {
   if(debug==TRUE) {print(Sys.time())}
   
   #BY PS
-  f.byPS <- sub("_bySV.csv", "_byPS.csv", detectionFile) #byPS file
+  f.byPS <- sub("_bySV.csv", "_byRP.csv", detectionFile) #byPS file
   cur.byPS <- read.csv2(f.byPS, check.names = FALSE) #read byPS file
   cur.byPS[["pval"]] <- NULL #remove existing pval
   #the merge sometimes does not work because of column 2: "(pair of) chromosome(s)"
@@ -153,7 +153,7 @@ filterAndSaveFiles <- function(detection, seuil, tipe, detectionFile) {
   #write the filtered byPS with pval file
   write.table(cur.byPS.pval, file = f.byPS, dec=".", sep=";", row.names = FALSE, quote=FALSE)
   
-  if(debug==TRUE) {print("filterAndSaveFiles3")}
+  if(debug==TRUE) {print("byPS3")}
   if(debug==TRUE) {print(Sys.time())}
   
   #get pvalue cut-off for FDR with threshold "seuil.del"
@@ -204,7 +204,7 @@ filterAndSaveFiles <- function(detection, seuil, tipe, detectionFile) {
   
   # also filter the byPS file and add pval and cov
   id_remaining <- paste(f.qval[,2], f.qval[["ID"]], sep=".") #ID of remaining deletions
-  f.out.byPS <- sub("_bySV.csv", "_byPS.csv", detectionFile) #byPS file
+  f.out.byPS <- sub("_bySV.csv", "_byRP.csv", detectionFile) #byPS file
   cur.byPS <- read.csv2(f.out.byPS, check.names = FALSE) #read byPS file
   cur.byPS[["pval"]] <- NULL #remove existing pval
   
@@ -237,7 +237,7 @@ filterAndSaveFiles <- function(detection, seuil, tipe, detectionFile) {
   cur.byPS.filtered.qval <- restoreName(cur.byPS.filtered.qval)
   
   ##write the filtered byPS with pval file
-  detectionFileOutbbyPS <- sub("_byPS.csv", "_byPS.stats.csv", f.out.byPS) #bySV file
+  detectionFileOutbbyPS <- sub("_byRP.csv", "_byRP.stats.csv", f.out.byPS) #bySV file
   write.table(cur.byPS.filtered.qval, file = detectionFileOutbbyPS, dec=".", sep=";", row.names = FALSE, quote=FALSE)
   
   #update detection file (both byPS and bySV) with pvalues

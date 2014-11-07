@@ -230,7 +230,7 @@ def _format_vcffile(dictreader, vcffile, Header, svtype, fdr_threshlod, lib, par
             except ValueError:
                 QUAL = 0
  
- 
+            #print "LINE", line
             if float(line[_tsv_fields[19]]) > fdr_threshlod:
                 FILTER = 'fdr'
             #elif (int(line['nbA'])<2 or int(line['nbB'])<2) and svtype =='INV':

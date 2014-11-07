@@ -60,12 +60,12 @@ def runRForClusterThreshold(tipe, ISmean, ISmed, ISmad, ISsd, genomeLength,
     output = procOutput[0]
     error = procOutput[1]    
 
-#    print "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ "
-#    print "output:"
-#    print output
-#    print "error:"
-#    print error
-#    print "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ "
+    print "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ "
+    print "output:"
+    print output
+    print "error:"
+    print error
+    print "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ "
 
 
     if proc.returncode != 0:

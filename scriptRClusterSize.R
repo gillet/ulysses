@@ -7,10 +7,10 @@ suppressPackageStartupMessages(suppressWarnings(library(tcltk)))
 
 ## I. READ AND PROCESS INPUT
 # This part reads, checks and process
-# the input from Ulysse python algo.
+# the input from Ulysses python algo.
 
 debug = TRUE
-debug = FALSE
+#debug = FALSE
 
 if(debug==TRUE) {print(paste("mode debug =", debug))}
 
