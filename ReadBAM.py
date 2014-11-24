@@ -410,7 +410,7 @@ pre-processing before detection of Structural Variations"
     print "\t\t\t\t---  ULYSSES ReadBAM 20141023  ---     \n\n"
     print "  Ulysses: Accurate detection of rare structural variations from high coverage genome sequencing\n"
     print "\t\t Alexandre Gillet, Hugues Richard, Gilles Fischer and Ingrid Lafontaine\n"
-    print "\t\t\t http://www.lcqb.upmc.fr/ulysse\n\n"
+    print "\t\t\t http://www.lcqb.upmc.fr/ulysses\n\n"
     print "\t\t\t\t Copyright UPMC - CNRS\n\n"
     
 
