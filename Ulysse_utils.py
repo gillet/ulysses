@@ -537,17 +537,17 @@ def cleanRange(c):
             if type(css[0])  == int:
                 l.append(int(css[0]))
             else:
-                print "\n\n\t************** Error : Range of chromosomes is not well defined\n"
+                print "\n\n\t************** Error : Range of chromosomes is not well formated\n"
                 sys.exit()
         elif len(css) == 2:
             try:
                 ll = range(int(css[0]), int(css[1])+1)
                 l.extend(ll)
             except:
-                print "\n\n\t************** Error : Range of chromosomes is not well defined\n"
+                print "\n\n\t************** Error : Range of chromosomes is not well formated\n"
                 sys.exit()
         else:
-            print "\n\n\t************** Error : Range of chromosomes is not well defined\n"
+            print "\n\n\t************** Error : Range of chromosomes is not well formated\n"
             sys.exit()
     return l
                 
