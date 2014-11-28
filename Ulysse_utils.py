@@ -529,19 +529,17 @@ def read_stats(statfile):
 
 #--------------------------------------------------------------------------
 def cleanRange(c):
+    """ This parses the chromsomes range as given by the user and returns
+    a clean list fo the chormosomes"""
     csplit = c.split(",")
     l = []
     for elt in csplit:
         css = elt.split("-")
         if len(css) == 1:
-            if type(css[0])  == int:
-                l.append(int(css[0]))
-            else:
-                print "\n\n\t************** Error : Range of chromosomes is not well formated\n"
-                sys.exit()
+            l.append(css[0])
         elif len(css) == 2:
             try:
-                ll = range(int(css[0]), int(css[1])+1)
+                ll = map(str, range(int(css[0]), int(css[1])+1))
                 l.extend(ll)
             except:
                 print "\n\n\t************** Error : Range of chromosomes is not well formated\n"
@@ -567,8 +565,8 @@ def prepare_detection(params):
         l = cleanRange(params["range"])
         liste = []
         for cx in l:
-            print "---------------------------------- ", stats["chromosome_prefix"]+str(cx)
-            liste.append(stats["chromosome_prefix"]+str(cx))
+            print "---------------------------------- ", stats["chromosome_prefix"]+cx
+            liste.append(stats["chromosome_prefix"]+cx)
         params["range"] = liste
 
     return stats, chrDicos
