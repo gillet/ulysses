@@ -528,9 +528,35 @@ def read_stats(statfile):
     return stats, chrDicos
 
 #--------------------------------------------------------------------------
+def cleanRange(c):
+    csplit = c.split(",")
+    l = []
+    for elt in csplit:
+        css = elt.split("-")
+        if len(css) == 1:
+            if type(css[0])  == int:
+                l.append(int(css[0]))
+            else:
+                print "\n\n\t************** Error : Range of chromosomes is not well defined\n"
+                sys.exit()
+        elif len(css) == 2:
+            try:
+                ll = range(int(css[0]), int(css[1])+1)
+                l.extend(ll)
+            except:
+                print "\n\n\t************** Error : Range of chromosomes is not well defined\n"
+                sys.exit()
+        else:
+            print "\n\n\t************** Error : Range of chromosomes is not well defined\n"
+            sys.exit()
+    return l
+                
+                
+#--------------------------------------------------------------------------
 def prepare_detection(params):
     """ Read stat files, read run info
     """
+
     stats, chrDicos = read_stats(params["stats"])
 
     if params["range"] == "all":
@@ -538,9 +564,10 @@ def prepare_detection(params):
         liste.sort()
         params["range"] = liste
     else:
+        l = cleanRange(params["range"])
         liste = []
-        for cx in params["range"]:
-            print "---------------------------------- ", cx
+        for cx in l:
+            print "---------------------------------- ", stats["chromosome_prefix"]+str(cx)
             liste.append(stats["chromosome_prefix"]+str(cx))
         params["range"] = liste
 
