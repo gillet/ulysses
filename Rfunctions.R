@@ -795,16 +795,15 @@ getPCOMP.hugues <- function(l,d, tipe, pISvec, n = 2, pISde2){
 getPCOMPINTER.new.hugues <- function(d, tipe, minps, l1, l2){
   ###Compute the proba that minps-1 are within a range d
   ###of the first one
-  #d=d/2
   if(tipe=="INS"){
-    #pcomp = (ComputePdistPS(2*d,l1, 2*minps) * ComputePdistPS(d, l2, minps)) #+(ComputePdistPS(d,l1, 2*minps) * ComputePdistPS(2*d, l2, minps)))/2
-    #pcomp = ((ComputePdistPS(2*d,l1, 2*minps) * ComputePdistPS(2*d, l2, minps)) + (ComputePdistPS(2*d,l1, 2*minps) * ComputePdistPS(2*d, l2, minps)))/2
-    pcomp = ((ComputePdistPS(2*d,l1, 2*(minps-2)) * ComputePdistPS(2*d, l2, minps-2)) + (ComputePdistPS(2*d,l1, minps-2) * ComputePdistPS(2*d, l2, 2*(minps-2))))/2
-    #pcomp = ComputePdistPS(2*d,l1, 2*minps) * ComputePdistPS(2*d, l2, minps)
+    if(d>10000) {dINS = d/2}
+    #pcomp = ((ComputePdistPS(d,l1, 2*minps) * ComputePdistPS(d, l2, minps)) + (ComputePdistPS(d,l2, 2*minps) * ComputePdistPS(d, l1, minps)))/2
+    pcomp = ((ComputePdistPS(2*dINS,l1, 2*minps) * ComputePdistPS(2*dINS, l2, minps)) + (ComputePdistPS(2*dINS,l2, minps) * ComputePdistPS(2*dINS, l1, 2*minps)))/2
   } else if(tipe=="TR") {
     pcomp = ComputePdistPS(2*d,l1, 2*minps) * ComputePdistPS(2*d, l2, 2*minps)
   } else if(tipe=="TN") {
-    pcomp = ComputePdistPS(d,l1, minps) *  ComputePdistPS(d,l2, minps)
+    if(d>10000) {d = d/4}
+    pcomp = ComputePdistPS(d,l1, minps) * ComputePdistPS(d,l2, minps)
     
   } 
   return(pcomp) 
@@ -964,7 +963,7 @@ getPINS <- function(x, tipe){
   #s=choose(ndis,PS)*(pc1+pc2)/2
   
 	pIS = getPCOMPINTER.new.hugues(d, tipe, PS, li, lj)
-	s=choose(ndis,PS)*pIS
+	s = choose(ndis,PS)*pIS
   
   
 		

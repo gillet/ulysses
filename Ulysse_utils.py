@@ -612,8 +612,6 @@ def get_centro_coords(params):
             ii = pi.split()
 
             
-#            if params["field_sep"] == ";":
-#                ii = pi.split(";")
             if params["field_sep"] not in ['Tb', '\t', ' ', 'tb']:
                 ii = pi.split(params["field_sep"])
                 
@@ -627,7 +625,9 @@ def get_centro_coords(params):
                             
     
         print"Centromeres:" #, centrom
-        Ualex.printplus(centrom)
+        for [a,b,c] in centrom:
+            print "%s : %d - %d" % (a,b,c)
+        #Ualex.printplus(centrom)
     else:
         print "\nCentromeres positions not given. Distinction between INS and RT will not be optimal\n"
     return centrom
