@@ -3,7 +3,7 @@ Ulysses is a chimeric python/R tool that aims at  providing an accurate detectio
 
 
 #Documentation
-Documentation is available at www.lcqb.upmc.fr/ulysses 
+Full documentation is available at www.lcqb.upmc.fr/ulysses 
 
 
 
