@@ -1,5 +1,6 @@
 #Short Description
-Ulysses is a chimeric python/R tool that is designed to provide an accurate detection of low-frequency structural variations in large insert-size sequencing libraries
+Ulysses is a chimeric python/R tool that aims at  providing an accurate detection of low-frequency structural variations in large - but also in classical Paired-End -  insert-size sequencing libraries. Ulysses will also accuratly predict SV present in 'high' amounts (e.g. homozygous or heterozygous SV). Ulysses can output SV in [VCF 4.1](http://samtools.github.io/hts-specs/VCFv4.1.pdf) format.
+
 
 #Documentation
 Documentation is available at www.lcqb.upmc.fr/ulysses 
