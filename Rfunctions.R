@@ -170,7 +170,7 @@ filterAndSaveFiles <- function(detection, seuil, tipe, detectionFile) {
     msg = paste("\n!!! Warning, No filtering performed for", tipe, ". All", tipe, "appear to be significant with FDR threshold", seuil, ". You can also try to increase th FDR threshold to increase specificity.\n")
     message(msg)
     write.table(detection, file = detectionFile, dec=".", sep=";", row.names = FALSE, quote=FALSE) #write to remove " symbol from file
-    detectionFile.byPS.name <- sub("_bySV.csv", "_byPS.csv", detectionFile) #byPS file
+    detectionFile.byPS.name <- sub("_bySV.csv", "_byRP.csv", detectionFile) #byPS file
     detectionFile.byPS <- read.csv2(detectionFile.byPS.name, check.names = FALSE) #read byPS file
     write.table(detectionFile.byPS, file = detectionFile.byPS.name, dec=".", sep=";", row.names = FALSE, quote=FALSE) #write to remove " symbol from file
     stop()
