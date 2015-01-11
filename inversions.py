@@ -388,24 +388,22 @@ def inversions_Etape6_v2(classorix, homo, groupes, signe, summary, minPS):
 		#Regarde si les PS copines signe opposes sont partagees par d'autres PS de meme signe
 #		print "Etape6 homo.keys ", homo.keys()
                 if i in homo.keys() :
-                    #print "copains oppose :", homo_signe[i]
-                    #for l in homo[i]:
-                    #    common(l, new)
-                    #print "homo[i]", homo[i]
-                    li = map(set, homo[i])
+                    li = map(list, map(set, homo[i]))
                     new.append(li)
+                    new = U.filter_list(new)
                 else:
                     print "no opposite partners"
                     #new = homo[i]
 #		if U.ps_fictive(classorix[signe][i]):
 #			print "Etape6 fictive ", i, classorix[signe][i], new, signe
-            comb=list(itertools.product(*new))
+#            comb=list(itertools.product(*new))
             #print comb
-            intersections = map(list, [set.intersection(*x) for x in comb])
+#            intersections = map(list, [set.intersection(*x) for x in comb])
             #print intersections
 
             #Remove small groups
-            new2=[x for x in intersections if len(x) >= minPS]
+#            new2=[x for x in intersections if len(x) >= minPS]
+            new2=[x for x in new if len(x) >= minPS]
             #for s in new:
             #    if len(s)>=minPS:
             #        new2.append(s)
