@@ -1065,9 +1065,10 @@ def getEltPosition(myListe, elt):
 
 def filter_list(L):
     """ Remove sublists !! Carefull, is slow with large lists """
-    return [x for x in L if not any(set(x)<=set(y) for y in L if x is not y)]
+    k = [x for x in L if not any(set(x)<set(y) for y in L if x is not y)]
+    k.sort()
+    return list(k for k,_ in itertools.groupby(k))
     
-
 #--------------------------------------------------------------------------
 
 def filter_listOfLists(L):
