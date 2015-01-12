@@ -389,7 +389,7 @@ def inversions_Etape6_v2(classorix, homo, groupes, signe, summary, minPS):
 #		print "Etape6 homo.keys ", homo.keys()
                 if i in homo.keys() :
                     li = map(list, map(set, homo[i]))
-                    new.append(li)
+                    new.extend(li)
                     new = U.filter_list(new)
                 else:
                     print "no opposite partners"
