@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """
 Created on Wed Jul 31 16:58:42 2013
 

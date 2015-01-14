@@ -4,7 +4,7 @@ Created on Wed Oct  3 13:45:41 2012
 
 @author: ingridl & AG
 """
-#!/usr/bin/python
+#!/usr/bin/env python
 __doc__       = """ texte doc """
 
 

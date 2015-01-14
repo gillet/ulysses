@@ -15,25 +15,25 @@ import Ulysse_utils as U
 from subprocess import Popen, PIPE, call
 
 ########################################################################################################################################################
-def runRForClusterThreshold(tipe, ISmean, ISmed, ISmad, ISsd, genomeLength, 
-                            nDiscordant, numberOfInterChromosomalFile, 
-                            seuil_cluster, script, functionsR, list_chr_length, 
-                            list_chr_names, detectionFile, bam_input_name, 
+def runRForClusterThreshold(tipe, ISmean, ISmed, ISmad, ISsd, genomeLength,
+                            nDiscordant, numberOfInterChromosomalFile,
+                            seuil_cluster, script, functionsR, list_chr_length,
+                            list_chr_names, detectionFile, bam_input_name,
                             dist_table, average_cov, sval, seuil_fdr, dirWork,
                             RL, n_param, numberOfIntraChromosomalPSFile):
     """ 2 functions:
 	1- detectionFile="None": Computes the #PS threshold for different SV types (DUP, INV, TR, INS)
 	2- detectionFile="aExistingDetectionFile": add a score to each SV based on expected number of SVs
     """
-    
-    
-    
-    
+
+
+
+
     #Compile C code for R (to speed up pIS and dn calculation)
     f = os.path.dirname(os.path.realpath(__file__))+"/probamaxdist.so"
     if not os.path.isfile(f):
         com = "R CMD SHLIB " + os.path.dirname(os.path.realpath(__file__))+"/probamaxdist.c"
-        print "\nUlysses will now compile C code for R"    
+        print "\nUlysses will now compile C code for R"
         print com
         os.system(com)
         print "Compilation Done\n"
@@ -49,7 +49,7 @@ def runRForClusterThreshold(tipe, ISmean, ISmed, ISmad, ISsd, genomeLength,
     com = ["Rscript", str(script)]
     com.extend(param_str)
     commande = " ".join(com)
-        
+
     proc= Popen(commande, stdout=PIPE, stderr=PIPE, shell=True)
     procOutput = proc.communicate()
 
@@ -58,7 +58,7 @@ def runRForClusterThreshold(tipe, ISmean, ISmed, ISmad, ISsd, genomeLength,
     #print "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ "
 
     output = procOutput[0]
-    error = procOutput[1]    
+    error = procOutput[1]
 
 #    print "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ "
 #    print "output:"
@@ -73,7 +73,7 @@ def runRForClusterThreshold(tipe, ISmean, ISmed, ISmad, ISsd, genomeLength,
         #    messag1= "Execution of R script was stopped for the following reason:\n"
         #    messag=messag1+procOutput[-1]
         #else:
-        
+
         messag = "Execution of R script stopped for unexpected reasons\n"
         messag = error
         return 1, messag,1
@@ -83,9 +83,9 @@ def runRForClusterThreshold(tipe, ISmean, ISmed, ISmad, ISsd, genomeLength,
          return 1, error+"\n"+output,1
 
     sSplitLines = filter(None, output.split("\n"))
-    sSplitVal = [x.replace("[1] ", "") for x in sSplitLines]  
-    #print "sSplitVal", sSplitVal     
-       
+    sSplitVal = [x.replace("[1] ", "") for x in sSplitLines]
+    #print "sSplitVal", sSplitVal
+
     if detectionFile=="ClusterLimitSize":
         rawTh = [x for x in sSplitVal if "MINPS" in x]
         clusterTh = int(rawTh[0].split("=")[1])
@@ -97,8 +97,8 @@ def runRForClusterThreshold(tipe, ISmean, ISmed, ISmad, ISsd, genomeLength,
         pval_seuil = float(rawPVAL[0].split("=")[1])
         #print "sSplitVal", sSplitVal
     infoMsg = sSplitVal[-1].replace("\"", "")
-    
-    
+
+
     if not 'pval_seuil' in locals():
         pval_seuil = 1
     return clusterTh, infoMsg, pval_seuil
@@ -123,12 +123,12 @@ def getChrList(bamF, silent=False):
 	if silent:
 		print "---------------------------------------------"
 		print "Reading chromosome sizes from BAM header:"
- 
+
 
 	F = pysam.Samfile(bamF, "rb")
 	chrStats=dict(zip(F.references, map(int, F.lengths)))
 	genomelength = sum(chrStats.values())
-	
+
 	if silent:
 		printplus(chrStats)
 		print
@@ -185,8 +185,8 @@ def printplus(obj):
 
 def updateCov(samFile, read, chrCovDict, covDir, compteur):
 	"""Evaluate coverage"""
- 
-    
+
+
 	chrom1 = samFile.getrname(read.tid)
 	chrom2 = samFile.getrname(read.rnext)
 
@@ -247,17 +247,17 @@ def reduceReformat(reformat, FBam, paramOut):
     		#input_file = open("/path/to/file", "r")
     		for PS in reformat:
     			counts[PS] = counts.get(PS, 0) + 1
-    
+
     		# Build a list of [(lineA, countA), (lineB, countB), ... ]
     		sorted_counts = list(counts.items())
-    
+
     		# Sort the list by (count, line) in reverse order.
     		sorted_counts.sort(lambda a,b: -cmp((a[1], a[0]), (b[1], b[0])))
-    
+
     		# write the lines
     		with open(fName, "w") as f:
     			for line, count in sorted_counts:
-    				#print line           
+    				#print line
     				li = line.split(sep)
     				lw = [str(count), li[0], li[1], li[2], li[3]+"\n"]
     				f.write('\t'.join(lw))
@@ -484,9 +484,9 @@ def addCovToDelFile(bam, delFile):
 			pysam.sort(bam, bam+".sorted")
 			pysam.index(bam+".sorted.bam")
 			bam = bam+".sorted.bam"
-	
- 
- 
+
+
+
  	F = pysam.Samfile(bam, "rb")
 	fDel = open(delFile)
 	lines = fDel.readlines()
@@ -544,7 +544,7 @@ def addCovToDelFile(bam, delFile):
 			else:
 				d_cov= 0
 		dicosCov[svID] = d_cov
-  
+
 		deletion = deletion + ";\""+ str(d_cov)+ "\""
 		lToWrite.append(deletion)
 
@@ -558,7 +558,7 @@ def addCovToDelFile(bam, delFile):
 		#print deletion   ########################################, "++++++++++"
 		delF.write("%s\n" % deletion)
 
-	#also add coverage to the byPS file 
+	#also add coverage to the byPS file
 	fDelbyPS = delFile.replace("bySV", "byRP")
 	fDel = open(fDelbyPS)
 	lines = fDel.readlines()
@@ -566,13 +566,13 @@ def addCovToDelFile(bam, delFile):
  	header_tmp.insert(17,"\"cov\"")
    	header = ";".join(header_tmp)
      	#print "header", header
- 
+
  	PSToWrite=[]
 	PSToWrite.append(header)
- 
+
  	deletionss = lines[1:]
 	deletions = [x.rstrip() for x in deletionss]
- 
+
  	for PS in deletions:
 		dele = PS.rstrip().split(";")
   		svID = dele[1][1:-1]+"-"+dele[2][1:-1]
@@ -584,25 +584,25 @@ def addCovToDelFile(bam, delFile):
 	fDel.close()
 	delF = open(fDelbyPS, "w")
 	for PS in PSToWrite:
-		
+
 		delF.write("%s\n" % PS)
- 
+
 	print "Added local coverage to "+delFile
 	print "---------------------------------------------"
 
 	return 1
 #----------------------------------------------------------------------------
-def define_MinPS(tipe, stats, seuil_cluster, list_chr_length, list_chr_names, 
-               detectionFile, paramsIn, reformat_dist, sval, seuil_fdr, 
+def define_MinPS(tipe, stats, seuil_cluster, list_chr_length, list_chr_names,
+               detectionFile, paramsIn, reformat_dist, sval, seuil_fdr,
                dirWork, RL, n_param, list_chr_real=['noGood666']):
     """ Calls runRForClusterThreshold to get the minimum number of PS required
     for SV"""
 
     #Set minimum nb of ps for detection of insertion
     #Attention nb_ps_min_ins = nb total de ps par jonction
-    
-    
-        
+
+
+
     numberOfInterChromosomalPSFile = paramsIn+"_PScandidate_per_Xsome_pairs.csv"
     numberOfIntraChromosomalPSFile = paramsIn+"_PScandidate_intra.csv"
     dirprog = os.path.split(os.path.abspath(sys.argv[0]))[0]
@@ -612,70 +612,70 @@ def define_MinPS(tipe, stats, seuil_cluster, list_chr_length, list_chr_names,
     #average_cov is no longer needed. set to 0
     average_cov = 0
     seuil_fdr = float(seuil_fdr)
-    
+
     if tipe == "INTER":
-        ps_min_ins, msg, pval_seuil = runRForClusterThreshold("INS", stats["mean"], stats["median"], 
+        ps_min_ins, msg, pval_seuil = runRForClusterThreshold("INS", stats["mean"], stats["median"],
                                        stats["mad"], stats["stdev"], stats["genome_length"], stats["ninter"],
-                                       numberOfInterChromosomalPSFile, seuil_cluster, 
-                                       scriptRClusterSize, functionsR, 
-                                       list_chr_length, list_chr_names, detectionFile,
-                                       paramsIn, reformat_dist, average_cov, sval,
-                                       seuil_fdr, dirWork, RL, n_param,
-                                       numberOfIntraChromosomalPSFile)                                
-        print msg
-        
-    
-        ps_min_tr, msg, pval_seuil = runRForClusterThreshold("TR", stats["mean"], stats["median"], 
-                                       stats["mad"], stats["stdev"], stats["genome_length"], stats["ninter"],
-                                       numberOfInterChromosomalPSFile, seuil_cluster, 
-                                       scriptRClusterSize, functionsR, 
+                                       numberOfInterChromosomalPSFile, seuil_cluster,
+                                       scriptRClusterSize, functionsR,
                                        list_chr_length, list_chr_names, detectionFile,
                                        paramsIn, reformat_dist, average_cov, sval,
                                        seuil_fdr, dirWork, RL, n_param,
                                        numberOfIntraChromosomalPSFile)
-    
         print msg
-    
-    
-        ps_min_tn, msg, pval_seuil = runRForClusterThreshold("TN", stats["mean"], stats["median"], 
+
+
+        ps_min_tr, msg, pval_seuil = runRForClusterThreshold("TR", stats["mean"], stats["median"],
                                        stats["mad"], stats["stdev"], stats["genome_length"], stats["ninter"],
-                                       numberOfInterChromosomalPSFile, seuil_cluster, 
-                                       scriptRClusterSize, functionsR, 
+                                       numberOfInterChromosomalPSFile, seuil_cluster,
+                                       scriptRClusterSize, functionsR,
                                        list_chr_length, list_chr_names, detectionFile,
                                        paramsIn, reformat_dist, average_cov, sval,
                                        seuil_fdr, dirWork, RL, n_param,
                                        numberOfIntraChromosomalPSFile)
-                                       
+
         print msg
-    
-    
+
+
+        ps_min_tn, msg, pval_seuil = runRForClusterThreshold("TN", stats["mean"], stats["median"],
+                                       stats["mad"], stats["stdev"], stats["genome_length"], stats["ninter"],
+                                       numberOfInterChromosomalPSFile, seuil_cluster,
+                                       scriptRClusterSize, functionsR,
+                                       list_chr_length, list_chr_names, detectionFile,
+                                       paramsIn, reformat_dist, average_cov, sval,
+                                       seuil_fdr, dirWork, RL, n_param,
+                                       numberOfIntraChromosomalPSFile)
+
+        print msg
+
+
         return ps_min_ins, ps_min_tr, ps_min_tn, msg
     else:
         if tipe == "INV":
             n = U.getN(paramsIn+"_PScandidate_intra.csv", "INV", list_chr_real, stats["chromosome_prefix"])
         else:
             n = U.getN(paramsIn+"_PScandidate_intra.csv", "DUP", list_chr_real, stats["chromosome_prefix"])
-       
+
 	#print "Define MINPS for", tipe #, "-n"+tipe.lower(), stats["n"+tipe.lower()]
-        ps_min, msg, pval_seuil = runRForClusterThreshold(tipe, stats["mean"], stats["median"], 
-                               stats["mad"], stats["stdev"], stats["genome_length"], 
-                               n, numberOfInterChromosomalPSFile, 
-                            #stats["n"+tipe.lower()], numberOfInterChromosomalPSFile, 
-                               seuil_cluster, scriptRClusterSize, functionsR, 
+        ps_min, msg, pval_seuil = runRForClusterThreshold(tipe, stats["mean"], stats["median"],
+                               stats["mad"], stats["stdev"], stats["genome_length"],
+                               n, numberOfInterChromosomalPSFile,
+                            #stats["n"+tipe.lower()], numberOfInterChromosomalPSFile,
+                               seuil_cluster, scriptRClusterSize, functionsR,
                                list_chr_length, list_chr_names, detectionFile,
                                paramsIn, reformat_dist, average_cov, sval,
                                seuil_fdr, dirWork, RL, n_param,
                                numberOfIntraChromosomalPSFile)
-                               
+
 	#print "$$$$$$$$$$$$$$$$$$$ ", ps_min, msg
         return ps_min, msg
 
 
 #----------------------------------------------------------------------------
-def functstats(tipe, stats, nDiscordant, seuil_cluster, list_chr_length, list_chr_names, 
+def functstats(tipe, stats, nDiscordant, seuil_cluster, list_chr_length, list_chr_names,
                detectionFile, paramsIn, reformat_dist, sval, seuil_fdr, dirWork,
                RL, n_param):
-    """ Calls runRForClusterThreshold to get the p-values for deletions and 
+    """ Calls runRForClusterThreshold to get the p-values for deletions and
     scores for the other SV types"""
 
     #CALCUL DES P-VALEURS pour les deletions ou score pour les autres
@@ -685,14 +685,14 @@ def functstats(tipe, stats, nDiscordant, seuil_cluster, list_chr_length, list_ch
 
     numberOfInterChromosomalPSFile = paramsIn+"_PScandidate_per_Xsome_pairs.csv"
     numberOfIntraChromosomalPSFile = paramsIn+"_PScandidate_intra.csv"
-    
+
     dirprog = os.path.split(os.path.abspath(sys.argv[0]))[0]
     scriptRClusterSize = dirprog+"/scriptRClusterSize.R"
-    functionsR = dirprog+"/Rfunctions.R"    
+    functionsR = dirprog+"/Rfunctions.R"
 
     #average_cov is no longer needed. set to 0
     average_cov = 0
-    
+
 #    print tipe, stats["mean"], stats["median"], \
 #                                   stats["mad"], stats["stdev"], stats["genome_length"], \
 #                                   nDiscordant, numberOfInterChromosomalPSFile,\
@@ -701,11 +701,11 @@ def functstats(tipe, stats, nDiscordant, seuil_cluster, list_chr_length, list_ch
 #                                   paramsIn, reformat_dist, average_cov, sval,\
 #                                   seuil_fdr, dirWork, RL, n_param,\
 #                                   numberOfIntraChromosomalPSFile
-    
-    ps_min, msg, pval_seuil = runRForClusterThreshold(tipe, stats["mean"], stats["median"], 
-                                   stats["mad"], stats["stdev"], stats["genome_length"], 
+
+    ps_min, msg, pval_seuil = runRForClusterThreshold(tipe, stats["mean"], stats["median"],
+                                   stats["mad"], stats["stdev"], stats["genome_length"],
                                    nDiscordant, numberOfInterChromosomalPSFile,
-                                   seuil_cluster, scriptRClusterSize, functionsR, 
+                                   seuil_cluster, scriptRClusterSize, functionsR,
                                    list_chr_length, list_chr_names, detectionFile,
                                    paramsIn, reformat_dist, average_cov, sval,
                                    seuil_fdr, dirWork, RL, n_param,

@@ -448,11 +448,15 @@ getPIS.2 <- function(ISddist, ISc, nPS){
 getC10kFor2ChrCombinations <- function(xdiff, tipe){
   #print(tipe)
   #
+  if(debug==TRUE) {print("getC10kFor2ChrCombinations1")}
   if(tipe=="INS"){ 
+    if(debug==TRUE) {print("getC10kFor2ChrCombinationsINS")}
     return(sum(apply(xdiff, 1, getPINS, tipe=tipe)))
   } else if(tipe=="TN") {
+    if(debug==TRUE) {print("getC10kFor2ChrCombinationsTN")}
     return(sum(apply(xdiff, 1, getPTN, tipe=tipe)))
   } else {
+    if(debug==TRUE) {print("getC10kFor2ChrCombinationsRT")}
     return(sum(apply(xdiff, 1, getPTR, tipe=tipe)))
   }
 }
@@ -795,8 +799,14 @@ getPCOMP.hugues <- function(l,d, tipe, pISvec, n = 2, pISde2){
 getPCOMPINTER.new.hugues <- function(d, tipe, minps, l1, l2){
   ###Compute the proba that minps-1 are within a range d
   ###of the first one
+  if(debug==TRUE) {print("getPCOMPINTER.new.hugues1")}
   if(tipe=="INS"){
-    if(d>10000) {dINS = d/2}
+    if(d>10000) {
+      dINS = d/2
+    } else {
+      dINS = d
+    }
+    if(debug==TRUE) {print("getPCOMPINTER.new.huguesINS")}
     #pcomp = ((ComputePdistPS(d,l1, 2*minps) * ComputePdistPS(d, l2, minps)) + (ComputePdistPS(d,l2, 2*minps) * ComputePdistPS(d, l1, minps)))/2
     pcomp = ((ComputePdistPS(2*dINS,l1, 2*minps) * ComputePdistPS(2*dINS, l2, minps)) + (ComputePdistPS(2*dINS,l2, minps) * ComputePdistPS(2*dINS, l1, 2*minps)))/2
   } else if(tipe=="TR") {
@@ -945,13 +955,14 @@ getChrLen <- function(num, allChr){
 #calculate the expected number of clusters for a combination
 getPINS <- function(x, tipe){
 	#print(x)
+  if(debug==TRUE) {print("getPINS1")}
 	ndis=as.numeric(x['V2']) #number of discordant fragments
 	li=as.numeric(x['X1len'])
 	lj=as.numeric(x['X2len'])
 	d=as.numeric(x['d'])
 	l=as.numeric(x['l'])
 	PS=as.numeric(x['nbRP'])
-	
+  if(debug==TRUE) {print("getPINS2")}
   #print(paste(ndis, li, lj, d, l, PS, sep=" -- "))
   
   #pc1=((2*d/li)^(PS-1))*(2*d/lj)^(PS-2)
@@ -963,6 +974,7 @@ getPINS <- function(x, tipe){
   #s=choose(ndis,PS)*(pc1+pc2)/2
   
 	pIS = getPCOMPINTER.new.hugues(d, tipe, PS, li, lj)
+  if(debug==TRUE) {print("getPINS3")}
 	s = choose(ndis,PS)*pIS
   
   

@@ -1,0 +1,4 @@
+example/YPS128_MP5k.*
+*.pyc
+*.o
+*.so
