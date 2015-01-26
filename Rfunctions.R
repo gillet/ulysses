@@ -538,18 +538,21 @@ fixeMinps.2 <- function(tipe, ISddist, ISc, l, d, n, seuil, xdiff){
     if(debug==TRUE) {print(paste("c10K", c10k, sep="   "))}
     while(c10k > seuil & minps < 1000){  #calculate the expected number of clusters and stop when c10k < to seuil
       #pIS <- getPIS.2(ISddist, ISc, minps) #get the proba of "minps" to have a compatible IS
-      if(debug==TRUE) {print(c10k)}
-      if(debug==TRUE) {print(seuil)}
-      if(debug==TRUE) {print(minps)}
+      if(debug==TRUE) {print(paste("c10k, seuil, minPS", c10k, seuil, minps, sep=", "))}
       pIS <- pISs[i]
-#       if(debug==TRUE) {print("INfixeMinPS.1.5")}
+       if(debug==TRUE) {print("INfixeMinPS.1.5")}
       pcomp <- getPCOMP(l,d,tipe, pISs, minps, pISs[2]) #proba for "minps" to be overlapping
-#       if(debug==TRUE) {print("INfixeMinPS.1.6")}
+       if(debug==TRUE) {print("INfixeMinPS.1.6")}
       c10k <- choose(n,minps)*pcomp #number of expected overlapping clusters of size "minps"
-      #print(paste(minps, c10k, n, sep=" ----" ))
-#       if(debug==TRUE) {print("INfixeMinPS.1.7")}
+       if(debug==TRUE) {print("INfixeMinPS.1.7")}
       minps <- minps + 1  #number of expected overlapping clusters of size "minps"
+       if(debug==TRUE) {print("INfixeMinPS.1.7.1")}
       i <- i + 1
+      if(is.na(c10k)==TRUE){
+        minps = 2
+        c10k = 999
+      }
+      if(debug==TRUE) {print(paste("INfixeMinPS.1.7.2, c10K, minps", c10k, minps, sep=", "))}
     }
     if(debug==TRUE) {print("INfixeMinPS.1.8")} 
   } else {
@@ -566,6 +569,7 @@ fixeMinps.2 <- function(tipe, ISddist, ISc, l, d, n, seuil, xdiff){
     }
     if(debug==TRUE) {print("INfixeMinPS.inter2")}
   }
+  if(debug==TRUE) {print(paste("INfixeMinPS_minps", minps, sep=", "))}
   if(minps>2){
     #write(minps-1, stdout())
     #write(c10k, stdout())
@@ -733,12 +737,15 @@ getPCOMPINTER.new <- function(d, tipe, minps, l1, l2){
 ###
 getPCOMP <- function(l,d, tipe, pISvec, n=2, pISde2){
   p=1/l
+  #print(paste("      d", d, sep=", "))
   if(tipe=="DUP"| tipe=="DEL" | tipe=="sINS"){
     #pcomp = (p * d * pIS)^(n-1)  # Proba of having a cluster of size f 
     pcomp = ((p * d )^(n-1)) * pISvec[n]  # Proba of having a cluster of size f 
     #} else if(tipe=="INV") {
   } else {
+    if(debug==TRUE) {print("getPCOMPbefore")}
     pcomp = (p*2*d*pISde2)*(((p*d)^(n-2))*pISvec[n-1]) 
+    if(debug==TRUE) {print("getPCOMPafter")}
   } 
   return(pcomp)
 }
