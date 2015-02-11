@@ -661,7 +661,8 @@ def runDetectionDel(params, stats, chrDicos):
         fileo.write("\n Minimum number of PS to define a deletion : %d" % (ps_min))
            
     if ps_min == 1:
-        ps_min = 2                                                
+        ps_min = 2   
+    #ps_min =2
     print "\nMINPS for a deletion:", ps_min
 
 

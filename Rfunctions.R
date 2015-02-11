@@ -744,7 +744,8 @@ getPCOMP <- function(l,d, tipe, pISvec, n=2, pISde2){
     #} else if(tipe=="INV") {
   } else {
     if(debug==TRUE) {print("getPCOMPbefore")}
-    pcomp = (p*2*d*pISde2)*(((p*d)^(n-2))*pISvec[n-1]) 
+    #pcomp = (p*2*d*pISde2)*(((p*d)^(n-2))*pISvec[n-1]) 
+    pcomp = (p*2*d*pISde2)*(((p*d)^(n-1))*pISvec[n]) 
     if(debug==TRUE) {print("getPCOMPafter")}
   } 
   return(pcomp)
