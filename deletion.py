@@ -38,16 +38,17 @@ def ReadFilesBAM(params, cx, orix, dicQual):
 
     #Retrieve PS Only read1 is written after BAM filtering
         for read1 in bam :
-            if read1.qname in dicQual:
-                dicQual[read1.qname].append(read1.mapq)
-            else:
-                dicQual[read1.qname] = [read1.mapq]
-                
-            chr1=bam.getrname(read1.tid)
-            ori1, chr1, pos1, ori2, chr2, pos2 = U.getCoord(read1, chr1, chr1)
-            if ori1+ori2 == orix and read1.mapq :
-                tempo.append([read1.qname, ori1, chr1, pos1, ori2, chr2, \
-                               pos2, abs(read1.tlen)])
+            if read1.is_read1:
+                if read1.qname in dicQual:
+                    dicQual[read1.qname].append(read1.mapq)
+                else:
+                    dicQual[read1.qname] = [read1.mapq]
+                    
+                chr1=bam.getrname(read1.tid)
+                ori1, chr1, pos1, ori2, chr2, pos2 = U.getCoord(read1, chr1, chr1)
+                if ori1+ori2 == orix and read1.mapq :
+                    tempo.append([read1.qname, ori1, chr1, pos1, ori2, chr2, \
+                                   pos2, abs(read1.tlen)])
 
     clasamex = sorted(tempo, key = itemgetter(3))
     return clasamex, ntot
@@ -676,6 +677,7 @@ def runDetectionDel(params, stats, chrDicos):
         #print "\n Scanning ", cx
         #os.system("date")
         classorix, ntot  = ReadFilesBAM(params, cx, orientation, dicQualDEL)
+        #classorix = list(set([tuple(i) for i in classorix]))
 
         
         #print "\nScanning ", cx,"with", len(classorix), "PS"

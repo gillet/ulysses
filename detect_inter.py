@@ -100,6 +100,10 @@ conversion is on\n\n")
     sv.Filter(clasdifx, Xsome, params["range"])
     clasdifx = []
 
+#    for pair, PSS in Xsome.iteritems():
+#        #print "pair", pair
+#        clasx = list(set([tuple(i) for i in PSS]))
+#        Xsome[pair]=clasx
 
 
 # START ALEX PARAMETERS #######################################################

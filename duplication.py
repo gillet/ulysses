@@ -36,20 +36,21 @@ def ReadFilesBAM(params, cx, subtel, median, ori, dicQual):
     with pysam.Samfile(params["in"]+"_"+cx, 'rb') as bam:
     #Retrieve PS Only read1 is written after BAM filtering
         for read1 in bam :
+            if read1.is_read1:
 
-            chr1=bam.getrname(read1.tid)
-            ori1, chr1, pos1, ori2, chr2, pos2 = U.getCoord(read1, chr1, chr1)
-            if ori1+ori2 == ori:
-                ps1sub = U.Subtelo(subtel, chr1, pos1)
-                ps2sub = U.Subtelo(subtel, chr1, pos2)
-
-                if (abs(read1.tlen) > median) and (ps1sub + ps2sub <= 1) :
-                    tempo.append([read1.qname, ori1, chr1, pos1, ori2, chr2,\
-                                   pos2, abs(read1.tlen)])
-                    if read1.qname in dicQual:
-                        dicQual[read1.qname].append(read1.mapq)
-                    else:
-                        dicQual[read1.qname] = [read1.mapq]           
+                chr1=bam.getrname(read1.tid)
+                ori1, chr1, pos1, ori2, chr2, pos2 = U.getCoord(read1, chr1, chr1)
+                if ori1+ori2 == ori:
+                    ps1sub = U.Subtelo(subtel, chr1, pos1)
+                    ps2sub = U.Subtelo(subtel, chr1, pos2)
+    
+                    if (abs(read1.tlen) > median) and (ps1sub + ps2sub <= 1) :
+                        tempo.append([read1.qname, ori1, chr1, pos1, ori2, chr2,\
+                                       pos2, abs(read1.tlen)])
+                        if read1.qname in dicQual:
+                            dicQual[read1.qname].append(read1.mapq)
+                        else:
+                            dicQual[read1.qname] = [read1.mapq]           
 
     clasamex = sorted(tempo, key = itemgetter(3))
     print "Processing", cx, "- Nb of discordant PS:", \
@@ -336,6 +337,7 @@ def runDetectionDup(params, stats, chrDicos, list_chr_real):
 #        pickle.dump(dicQual, output)
 #        output.close()
         
+        #classorix = list(set([tuple(i) for i in classorix]))
         
         dup = Duplication(classorix, stats["mad"], stats["median"], 
                           params["out"], chx, dup, ps_min)

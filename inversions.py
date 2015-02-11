@@ -35,17 +35,18 @@ def ReadFilesBAM(params, cx, clasame, dicQual):
 
     #Retrieve PS Only read1 is written after BAM filtering
         for read1 in bam :
+            if read1.is_read1:
 
-            chr1=bam.getrname(read1.tid)
-            ori1, chr1, pos1, ori2, chr2, pos2 = U.getCoord(read1, chr1, chr1)
-                                                                                
-            if ori1+ori2 == "--" or ori1+ori2 == "++":
-                clasame[ori1+ori2].append([read1.qname, ori1, chr1, pos1, \
-                                          ori2, chr2, pos2, abs(read1.tlen)])
-                if read1.qname in dicQual:
-                    dicQual[read1.qname].append(read1.mapq)
-                else:
-                    dicQual[read1.qname] = [read1.mapq]
+                chr1=bam.getrname(read1.tid)
+                ori1, chr1, pos1, ori2, chr2, pos2 = U.getCoord(read1, chr1, chr1)
+                                                                                    
+                if ori1+ori2 == "--" or ori1+ori2 == "++":
+                    clasame[ori1+ori2].append([read1.qname, ori1, chr1, pos1, \
+                                              ori2, chr2, pos2, abs(read1.tlen)])
+                    if read1.qname in dicQual:
+                        dicQual[read1.qname].append(read1.mapq)
+                    else:
+                        dicQual[read1.qname] = [read1.mapq]
 
 
 
@@ -226,7 +227,8 @@ def rmSubInv(liste):
                 ok = False
                 break
         if ok:
-            cleanListe.append(elt)	
+            cleanListe.append(elt)
+    
     return cleanListe
 
 #----------------------------------------------------------------------------
@@ -428,8 +430,9 @@ def inversions_Affiche(params, clasamex, liste, chrox, nb, d, minPS):
     outp = open(params["out"]+"_inversions_bySV.csv", "a")
     manip = os.path.split(params["in"])[1]
     #print "Affiche Inversion ", liste
-
+    #ff = 1
     for i in liste:
+        
         n1 = len(i[0])
         n2 = len(i[1])
         nbPS = n1 + n2
@@ -447,12 +450,12 @@ def inversions_Affiche(params, clasamex, liste, chrox, nb, d, minPS):
             # fin = max right des ps --
             # start = min left des ps ++
             
-            minsize = abs(fin - start)
+            minsize = min(abs(minrp -maxlm), abs(fin - start))
             
             # minrp = min right ++
             # maxlm = max left --
 
-            maxsize = minrp -maxlm
+            maxsize = max(abs(minrp -maxlm), abs(fin - start))
             
             pvalue = U.testStatSciPy(n1, n2)
             #print pvalue
@@ -467,6 +470,8 @@ def inversions_Affiche(params, clasamex, liste, chrox, nb, d, minPS):
                                 "NA", minsize, maxsize, pvalue, "NA"))
             for s in i[0]:
                 si = clasamex["--"][s]
+                #if ff ==1:
+                #    print "ff", s, si[0]
                 U.write_byPS(out, (manip, chrox, nb, nbPS, len(i[0]), len(i[1]), 
                                 left_out, left_in, abs(left_in - left_out), 
                                 "NA", right_out, right_in, abs(right_out - right_in),
@@ -483,6 +488,7 @@ def inversions_Affiche(params, clasamex, liste, chrox, nb, d, minPS):
                                 si[2], si[3], si[4], si[5], si[6], si[7]))
 #		if U.ps_fictive(si):
 #			print "Affiche Inversion ",si[0]
+            #ff +=1
     out.close()
     outp.close()
     return nb
@@ -566,6 +572,12 @@ def runDetectionInv(params, stats, chrDicos, list_chr_real):
         classorix = {"++":[], "--":[], "-+":[]}
         ReadFilesBAM(params, chrx, classorix, dicQual)
         
+#        for pair, PSS in classorix.iteritems():
+#        #print "pair", pair
+#            clasx = list(set([tuple(i) for i in PSS]))
+#            classorix[pair]=clasx
+        
+        #print "classorix", classorix['--']
         print "Processing", chrx, "- Nb of discordant PS:", str(len(classorix['--'])+len(classorix['++'])), \
         "-", datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         #TODO: TOREMOVE
