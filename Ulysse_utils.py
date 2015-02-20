@@ -352,7 +352,7 @@ def ps_fictive(PS):
     """ Returns True if PS name has all elements of A PS fictive name"""
 
     Fic = "mock.TN.NApb.chr22-chr21.2PS-0PS.PS"
-    Fic = "1209:8995:58751"
+    Fic = "HWI-D00473:127:C5T3JACXX:2:2312:4501:6634"
     if isinstance(PS[0], str):
         if Fic in PS[0]:
             return True
@@ -1439,6 +1439,19 @@ def cleanAnySVFilePairOLD(bySVfileName, byPSfileName):
 		bySVfile.write("%s\n" % ';'.join(SV))
 
 	#print "Finished removing duplicates in files", bySVfileName, "and", byPSfileName, "\n"
+
+#------------------------------------------------------------------------------
+ 
+def intersectall(a, b, minPS):
+    """Make all intersections of all combinations of lists in a and b"""
+    comb = itertools.product(a,b)
+    grp=[]             #list of groups that have an intersection of len>=minPS for each PS
+    for elt in comb:
+        tmp = list(set(elt[0]).intersection(*elt))
+        if len(tmp)>=minPS:
+            if tmp not in grp:
+                grp.append(tmp)
+    return grp
 
 #--------------------------------------------------------------------------
 

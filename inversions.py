@@ -16,10 +16,17 @@ except ImportError:
     sys.exit()
 try:
     from numpy import median
+    import numpy as np
 except ImportError:
     print "\tError: NumPy is not installed. \n\
     Please see: http://www.numpy.org/\n\n"
     sys.exit()
+
+try:
+    import networkx as nx
+except ImportError:
+    print "\tError: networkx package in not installed. \n\
+    Please see: http://networkx.lanl.gov/index.html"
 
 import Ulysse_utils as U
 import Ulysse_stats as Ualex
@@ -245,7 +252,7 @@ def inversions_Etape1et2(clasamex, d, ids, ps_type, ps_min):
     
     
     Cherche les PS compatibles en orientation opposees
-    2 dicos (un pour les -*- l autre pour les ++:
+    2 dicos (un pour les -- l autre pour les ++:
     ID PS : [liste des compatibles]"""
 
     candmoins = {}
@@ -280,19 +287,23 @@ def inversions_Etape1et2(clasamex, d, ids, ps_type, ps_min):
 def inversions_Etape4(clasamex, cand, signe, d, ids, minPS):
     """ Group PS of same signs ("++" or "--") according to their PS in opposite
     orientation that they have in common
-    
-    Cherche les sous groupse de PS compatiblent entre elles en orientation opposee de chaque PS """
+    /!\ It is not because the PS are compatible with the same opposite PS that they
+    are themselves compatible !!
+    """
     homogene = {}
     oppose = "--"
     if signe  ==  "--":
         oppose = "++"
     for un in cand.keys():
         toto = inversions_Etape5(clasamex, cand[un], oppose, d, ids, minPS) #fait des sousgroups homogenes dans l orientation oppose a la PS 'un'
+        #if un == 175:
+        #    print "ca commence", toto
         if toto :
             toto2=[]
             for elt in toto:
-                if len(elt)>=minPS:
-                    toto2.append(elt)
+                toto2.append(elt)
+                #if len(elt)>=minPS:
+                 #   toto2.append(elt)
             
             if toto2:
                 #print "toto", toto2
@@ -311,11 +322,14 @@ def inversions_Etape5(clasamex, liste, signe, d, ids, minPS):
     #stop = 0
     sel = []
     for i in liste:
-         
+        
         tri = [i]
         for j in liste:
+            
             cand_ok = candidatInvMemeSigne(clasamex[signe][i],
                                            clasamex[signe][j], d, ids)
+#            if (i == 16 and j==175) or (j == 16 and i==175):
+#                print i, j, cand_ok, clasamex[signe][i], clasamex[signe][j]
 #	    if U.ps_fictive(clasamex[signe][i]) and U.ps_fictive(clasamex[signe][j]):
 #		    print "inversions Etape5 ", i, clasamex[signe][i][0], j, clasamex[signe][j][0], cand_ok
             if (i != j) and cand_ok :
@@ -324,12 +338,37 @@ def inversions_Etape5(clasamex, liste, signe, d, ids, minPS):
 
         #ne garde que les PS qui ont au moins un autre PS compatible
         #ne garde que les groupes qui ne sont pas deja formes
-	U.inde_groupsMinPS(sel, tri, minPS)
+        #U.inde_groupsMinPS(sel, tri, minPS)
+        U.inde_groups(sel, tri)
         if len(tri)  ==  L :
             break
-        
-                    
-    return sel
+    sel = U.filter_list(sel)   
+    
+    #verify that everybody is compatible with each other inside each 'group  of compatible PS'
+    #if not keep the largest subgroupintersection 
+    nsel = []
+    for g in sel:
+        t=[]
+        for i, PS in enumerate(g):
+            for j, otherPS in enumerate(g):
+                if j>i:
+                    cand_ok = candidatInvMemeSigne(clasamex[signe][PS],
+                                           clasamex[signe][otherPS], d, ids)
+                    if cand_ok:                                           
+                        t.append((PS, otherPS))
+        G=nx.Graph()
+        G.add_edges_from(t)
+        fused = nx.find_cliques_recursive(G)
+        if fused:
+            #if len(g) != len(max(fused, key=len)):
+            #    print 'avant - fused',len(g), len(max(fused, key=len))
+#            if 16 in g and 175 in g:
+#                print "ET LA ???", g, max(fused, key=len)
+            if len(max(fused, key=len)) > minPS:
+                nsel.append(list(max(fused, key=len)))
+              
+
+    return nsel
 
 #------------------------------------------------------------------------------
 def inversions_Etape6(classorix, homo, groupes, signe, summary, minPS):
@@ -372,46 +411,71 @@ def inversions_Etape6(classorix, homo, groupes, signe, summary, minPS):
                                 summary.append([g, s])
 #    else:
 #        print "alone"
- 
- 
+
+
+
 #------------------------------------------------------------------------------
 def inversions_Etape6_v2(classorix, homo, groupes, signe, summary, minPS):
     """Keep only links between PS (-, -) and (+, +) present in intermediate
     file"""
-    #print groupes
+    #print "GROUPS", groupes
     if groupes:
 	#pour chaque groupe de PS de meme signe homogene
         for g in groupes:
             if g:
                 g.sort()
 		#pour chaque PS dans un groupe homogene
-            new = []
-            for i in g:
+            newD = {}
+            for ind, i in enumerate(g):
 		#Regarde si les PS copines signe opposes sont partagees par d'autres PS de meme signe
-#		print "Etape6 homo.keys ", homo.keys()
                 if i in homo.keys() :
                     li = map(list, map(set, homo[i]))
-                    new.extend(li)
-                    new = U.filter_list(new)
+                    #print "LI", li
+                    newD[ind] = li
                 else:
                     print "no opposite partners"
-                    #new = homo[i]
-#		if U.ps_fictive(classorix[signe][i]):
-#			print "Etape6 fictive ", i, classorix[signe][i], new, signe
-#            comb=list(itertools.product(*new))
-            #print comb
-#            intersections = map(list, [set.intersection(*x) for x in comb])
-            #print intersections
+            new2 = reduce(lambda x, y: U.intersectall(x, y, minPS), newD.values())  #this is like below but with a reduce to limite the number of combinations
+            
+            
+            
+#            #the first time i used this approach, i used LIST(comb) which is memory Horrible !!!!
+#            comb = itertools.product(*newD.values()) #combinations of groups, it is a generator
+#            #not so good to do the comb because if i have 100PS in the groupe g and each PS is compatible with 4 opposite groupes
+#            #it makes 4^100 possible combinations !! It is impossible to compute !!!
+#            #intersections = map(list, [set.intersection(*x) for x in comb])
+#            grp=[]             #list of groups that have an intersection of len>=minPS for each PS
+#            for elt in comb:
+#                tmp = list(set(elt[0]).intersection(*elt))
+#                if len(tmp)>=minPS:
+#                    if tmp not in grp:
+#                        grp.append(tmp)
+#            new2 = list(set(tuple(i) for i in grp)) #remove duplicates
+                    
+            
 
-            #Remove small groups
-#            new2=[x for x in intersections if len(x) >= minPS]
-            new2=[x for x in new if len(x) >= minPS]
-            #for s in new:
-            #    if len(s)>=minPS:
-            #        new2.append(s)
+                            
+#this is version 1 with the bug                            
+#            flattened  = [val for sublist in newD.values() for val in sublist] #flattened list: put all lists of lists in the same list
+#            #the flattened list is a mistake because i lose the info of which PS is compatible with each group !!
+#            skt = list(set(tuple(i) for i in flattened)) #remove duplicates
+#            toRem = []
+#            for ieme, i in enumerate(skt):
+#            	for jeme, j in enumerate(skt):
+#            		if ieme < jeme:
+#            			l = [len(i), len(j)]
+#            			if l[0] != l[1]:
+#            				#set([i, j][np.argmin(l)]).issubset(set([i, j][np.argmax(l)])), i, j, l
+#            				if set([i, j][np.argmin(l)]).issubset(set([i, j][np.argmax(l)])):
+#            					toRem.append([i, j][np.argmax(l)])
+#            rien = [skt.remove(x) for x in list(set(tuple(i) for i in toRem))] #remove from skt the superlists
+#            #Remove small groups
+#            #new2=[x for x in new if len(x) >= minPS]
+#            new2=[x for x in skt if len(x) >= minPS]
+#            #for s in new:
+#            #    if len(s)>=minPS:
+#            #        new2.append(s)
 
             for s in new2:
-                #print "-----> SSS", s
                 if s:
                     if signe  ==  "++":
                         if not sumCom(summary, s, g):
@@ -421,6 +485,83 @@ def inversions_Etape6_v2(classorix, homo, groupes, signe, summary, minPS):
                             summary.append([g, s])
 #    else:
 #        print "alone"
+
+#------------------------------------------------------------------------------
+def inversions_fusion(params, clasamex, liste, chrox, nb, d, minPS, n):
+    """Fuses inversions that are split due to  2-junctions constraints """
+    #1: get everybodies coordinates
+    
+    dikiExtr = {}
+    for ieme, i in enumerate(liste):
+        deb, fin, maxlm, minrm, medSVm = extremites(clasamex, i[0], "--")
+        start, end, maxlp, minrp, medSVp = extremites(clasamex, i[1], "++")
+        left_in = max(deb, fin)
+        right_in = min(start, end)
+        left_out = maxlm
+        right_out = minrp
+        dikiExtr[ieme] = {}
+        dikiExtr[ieme]['left_in'] = left_in
+        dikiExtr[ieme]['right_in'] = right_in
+        dikiExtr[ieme]['left_out'] = left_out
+        dikiExtr[ieme]['right_out'] = right_out
+        
+        
+    #2: identify compatible invs, creat all 2 by 2 comparisons    
+    toFuse = []    
+    for ieme, i in enumerate(liste):
+        left_in = dikiExtr[ieme]['left_in']
+        right_in = dikiExtr[ieme]['right_in']
+        left_out = dikiExtr[ieme]['left_out']
+        right_out = dikiExtr[ieme]['right_out']
+        for jeme, j in enumerate(liste):
+            left_inj = dikiExtr[jeme]['left_in']
+            right_inj = dikiExtr[jeme]['right_in']
+            left_outj = dikiExtr[jeme]['left_out']
+            right_outj = dikiExtr[jeme]['right_out']
+
+            overlapLeft = max(left_out, left_outj)<min(left_in, left_inj) #check overlap 
+            overlapRight = max(right_inj, right_in)<min(right_outj, right_out)
+
+            c1 = abs(left_inj-left_in)<d #check proximity of coordinates
+            c2 = abs(right_inj-right_in)<d
+            c3 = abs(left_outj-left_out)<d
+            c4 = abs(right_outj-right_out)<d
+            
+            p1 = max(right_inj, right_in) < min(right_outj, right_out)
+            p2 = max(left_outj, left_out) < min(left_inj, left_in)
+            #print "OVERLAP", overlapLeft, overlapRight, max(right_inj, right_in) < min(right_outj, right_out), max(left_outj, left_out) < min(left_inj, left_in)
+            if ieme < jeme: #the compatibility test
+                if p1 and p2 and \
+                c1 and c2 and c3 and c4 and \
+                overlapLeft and overlapRight:
+                    toFuse.append([ieme, jeme])
+    #3: fuse compatible invs as maximal cliques
+    G=nx.Graph()
+    G.add_edges_from(toFuse)
+    fusedG = nx.find_cliques_recursive(G)
+    if fusedG:
+        f = [val for sublist in fusedG for val in sublist] #flatten list
+        singletonsINV = list(set(range(0,len(liste))).difference(set(f))) #search singletons (INV compatible with no other one)
+        fusedG = fusedG + [[x] for x in singletonsINV] #add singletons
+#        if n==2:
+#            print "liste", liste
+#            print "toFuse", toFuse
+#            print "fusedG", fusedG
+        fusedListe = []
+        for elt in fusedG:
+            mm = []
+            pp = []
+            for SV in elt:
+                mm.extend(liste[SV][0])
+                pp.extend(liste[SV][1])
+                mm = list(set(mm))
+                pp = list(set(pp))
+            fusedListe.append([mm, pp])
+#        print "LONGUEURS", len(liste), len(fusedListe)
+        return fusedListe, True
+    else:
+        return liste, False
+            
   
 
 #------------------------------------------------------------------------------
@@ -551,6 +692,8 @@ def runDetectionInv(params, stats, chrDicos, list_chr_real):
     dicQual = {}
     D = int(stats["median"]) + int(params["n"])*float(stats["mad"])
     IDS = 2*D
+    #print "IDS", IDS
+    #IDS = 1000*D #TODO REMOVE
     U.create_files("inversions", params["out"])
 #    prefix = stats["chromosome_prefix"]
 #TO BE REMOVED FOR TEST RAD27 
@@ -571,6 +714,7 @@ def runDetectionInv(params, stats, chrDicos, list_chr_real):
         
         classorix = {"++":[], "--":[], "-+":[]}
         ReadFilesBAM(params, chrx, classorix, dicQual)
+        #print(dicQual)
         
 #        for pair, PSS in classorix.iteritems():
 #        #print "pair", pair
@@ -584,33 +728,144 @@ def runDetectionInv(params, stats, chrDicos, list_chr_real):
         if int(stats["median"])<1000:
             ps_min = 1
         #ps_min = 1
+#        print "D1", D
         #Pour chaque moins, moins recuperer copains plus, plus. et inversement
         candimoins, candiplus = inversions_Etape1et2(classorix, D, IDS, 
                                                      stats["ps_type"], ps_min)
-        
+        #
+#        print "D2", D
         #Faire des sous-groupes homogenes avec les plus, plus copains d'un moins, moins
         homo_moins = inversions_Etape4(classorix, candimoins, "--", D, IDS, ps_min)
-        
-        
+        #print homo_moins
+#        print "D3", D
         #Faire des sous-groupes homogenes avec les moins, moins copains d'un plus, plus
         homo_plus = inversions_Etape4(classorix, candiplus, "++", D, IDS, ps_min)
         
+#        import pickle
+#                
+#        ids = zip(*classorix['--'])[0]
+#        PS1 = 'HWI-D00473:127:C5T3JACXX:2:2215:11082:100048'
+#        PS2 = 'HWI-D00473:127:C5T3JACXX:3:2310:15747:5973'
+#        
+#        
+#        print ids.index(PS1)
+#        print ids.index(PS2)
+        
+
+
+#        pickle.dump(homo_moins, open("/home/alex/NGS_data/ulysses3.0/WT/inv/splitDetection/testChr1/homo_moins.p", "wb"))
+#        pickle.dump(homo_plus, open("/home/alex/NGS_data/ulysses3.0/WT/inv/splitDetection/testChr1/homo_plus.p", "wb"))
+#        print "D4", D
         #Avec les -,- (avec copains +, +) Faire des groupes homogenes de -,-
         #cherche les sousgroupes de -- compatbles entre eux
+         
         groupe_moins = inversions_Etape5(classorix, homo_moins.keys(), "--", D,
                                          IDS, ps_min)
+#        print "D5", D
+#        for g in groupe_moins:
+#            if 175 in g and 16 in g:
+#                print "GGG pas bon", g
         #Avec les +,+ (avec copains -, -) Faire des groupes homogenes de +,+
         #cherche les sousgroupes de ++ compatbles entre eux
         groupe_plus = inversions_Etape5(classorix, homo_plus.keys(), "++", D,
                                         IDS, ps_min)
-        
+#        pickle.dump(groupe_moins, open("/home/alex/NGS_data/ulysses3.0/WT/inv/splitDetection/testChr1/groupe_moins.p", "wb"))
+#        pickle.dump(groupe_plus, open("/home/alex/NGS_data/ulysses3.0/WT/inv/splitDetection/testChr1/groupe_plus.p", "wb"))        
+#        print "D6", D
+##########################################
+#        out = open(params["out"]+"_inversions_byRP_GROUPESmoins.csv", "w")
+#        nb=0
+#        for i in groupe_moins:
+#            n1 = len(i)
+#            n2 = len(i)
+#            nbPS = n1 + n2
+#            nb+=1
+#            if  i:
+#                nb+=1
+#                deb, fin, maxlm, minrm, medSVm = 0,0,0,0,0
+#                start, end, maxlp, minrp, medSVp = 0,0,0,0,0
+#                left_in = max(deb, fin)
+#                right_in = min(start, end)
+#                left_out = maxlm
+#                right_out = minrp
+#                minsize = min(abs(minrp -maxlm), abs(fin - start))
+#                maxsize = max(abs(minrp -maxlm), abs(fin - start))
+#                
+#                pvalue = 0
+#                for s in i:
+#                    si = classorix["--"][s]
+#                    #if ff ==1:
+#                    #    print "ff", s, si[0]
+#                    U.write_byPS(out, ("test", chrx, nb, nbPS, len(i), len(i), 
+#                                    left_out, left_in, abs(left_in - left_out), 
+#                                    "NA", right_out, right_in, abs(right_out - right_in),
+#                                    "NA", minsize, maxsize, pvalue, "NA", si[0], si[1],
+#                                    si[2], si[3], si[4], si[5], si[6], si[7]))
+#        out.close()
+#
+#        out = open(params["out"]+"_inversions_byRP_GROUPESplus.csv", "w")
+#        
+#        nb=0
+#        for i in groupe_plus:
+#            n1 = len(i)
+#            n2 = len(i)
+#            nbPS = n1 + n2
+#            nb+=1
+#            if  i:
+#                deb, fin, maxlm, minrm, medSVm = 0,0,0,0,0
+#                start, end, maxlp, minrp, medSVp = 0,0,0,0,0
+#                left_in = max(deb, fin)
+#                right_in = min(start, end)
+#                left_out = maxlm
+#                right_out = minrp
+#                minsize = min(abs(minrp -maxlm), abs(fin - start))
+#                maxsize = max(abs(minrp -maxlm), abs(fin - start))
+#                
+#                pvalue = 0
+#                for s in i:
+#                    si = classorix["++"][s]
+#                    #if ff ==1:
+#                    #    print "ff", s, si[0]
+#                    U.write_byPS(out, ("test", chrx, nb, nbPS, len(i), len(i), 
+#                                    left_out, left_in, abs(left_in - left_out), 
+#                                    "NA", right_out, right_in, abs(right_out - right_in),
+#                                    "NA", minsize, maxsize, pvalue, "NA", si[0], si[1],
+#                                    si[2], si[3], si[4], si[5], si[6], si[7]))
+#        out.close()
+#        print "DOOOONE"
+    
+
+##############################
+
         #Sortir tous les sous-groupes homogenes (-, -) et (+, +) avec les liens presents dans le fichier intermediaire
         resume = []
         inversions_Etape6_v2(classorix, homo_moins, groupe_moins, "--", resume, ps_min)
         inversions_Etape6_v2(classorix, homo_plus, groupe_plus, "++", resume, ps_min)
+
         
         
         resumeClean = rmSubInv(resume)
+        
+        
+#        pickle.dump(params, open("/home/alex/NGS_data/ulysses3.0/WT/inv/splitDetection/testChr1/params.p", "wb"))
+#        pickle.dump(classorix, open("/home/alex/NGS_data/ulysses3.0/WT/inv/splitDetection/testChr1/classorix.p", "wb"))        
+#        pickle.dump(resumeClean, open("/home/alex/NGS_data/ulysses3.0/WT/inv/splitDetection/testChr1/resumeClean.p", "wb"))
+#        pickle.dump(chrx, open("/home/alex/NGS_data/ulysses3.0/WT/inv/splitDetection/testChr1/chrx.p", "wb"))
+#        pickle.dump(D, open("/home/alex/NGS_data/ulysses3.0/WT/inv/splitDetection/testChr1/D.p", "wb"))
+#        pickle.dump(ps_min, open("/home/alex/NGS_data/ulysses3.0/WT/inv/splitDetection/testChr1/ps_min.p", "wb"))
+#        print "PICKLE DONE"
+        
+        fusionHappend = True
+        n = 1
+        print "fusion1"
+#        resumeClean, fusionHappend = inversions_fusion(params, classorix, resumeClean, chrx, 0, D, ps_min, n)
+#        print "fusion2"
+#        resumeClean, fusionHappend = inversions_fusion(params, classorix, resumeClean, chrx, 0, D, ps_min, n)
+        while fusionHappend:
+            resumeClean, fusionHappend = inversions_fusion(params, classorix, resumeClean, chrx, 0, D, ps_min, n)
+            n+=1
+
+        
         
         #print "resume", resumeClean
         #Affichage

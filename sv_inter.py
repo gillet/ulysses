@@ -13,7 +13,11 @@ except ImportError:
     sys.exit()
 import operator
 import datetime
-
+try:
+    import networkx as nx
+except ImportError:
+    print "\tError: networkx package in not installed. \n\
+    Please see: http://networkx.lanl.gov/index.html"
 
 
 
