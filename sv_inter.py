@@ -249,6 +249,8 @@ def homosameORI(xsome, liste, d, minPS, pairOppCoordListe):
     #print "homosame homo", homo
     return homo
 
+
+
 #--------------------------------------------------------------------------
 def homosame(xsome, liste, d, minPS, pairOppCoordListe):
     """Make homogeneous sub-groups with PS in a given orientation."""
@@ -612,45 +614,42 @@ def homosameBinary(xsome, liste, d, minPS, pairOppCoordListe):
 
 #--------------------------------------------------------------------------
 def homoOpp(xsome, cand, pairopp, d, minPS, pairOppCoord):
-    """Group PS in ori X with respect to their common PS in ori oppX."""
+    """Group PS in ori X with respect to their common PS in ori oppX.
+    xsome: PS info
+    cand: groupe of compatible PS in a given orientation
+    pairopp: dictionnary of compatible PS in opposite direction"""
+    
+    LPairOpp, LPairOppCoord = {}, {} #dict: key=list of compatible opposite pairs, value=list of PS with the compatble list key
+    for un in cand:
+        tmp = pairopp[un]
+        tmp2 = pairOppCoord[un]
+        
+        if tuple(tmp) not in LPairOpp:
+            LPairOpp[tuple(tmp)] = [un]
+            LPairOppCoord[tuple(tmp2)] = [un]
+        else:
+            LPairOpp[tuple(tmp)].append(un)
+            LPairOppCoord[tuple(tmp2)].append(un)
+    #LPairOppCoordRev = {tuple(v): k for k, v in LPairOppCoord.items()} #reverse the oppCorrd dicos
+    oppoComp = {} #dict: key=list of compatible opposite pairs, value=list the lists of PS groups made from the key
+    for oppG, val in LPairOpp.iteritems():
+        #oppGCoords = list(LPairOppCoordRev[tuple(val)])
+        #tutu = homosame(xsome, list(oppG), d, minPS, oppGCoords) #make subgroups out of the group oppG
+        tutu = homosame(xsome, list(oppG), d, minPS, pairOppCoord[val[0]]) #make subgroups out of the group oppG
+        oppoComp[oppG] = tutu
+    
     
     homo_opp = {}
-    tutuFirst = homosame(xsome, pairopp[cand[0]], d, minPS, pairOppCoord[cand[0]])
-    tutuLast = homosame(xsome, pairopp[cand[-1]], d, minPS, pairOppCoord[cand[-1]])
-    tutuFirst.sort()
-    tutuLast.sort()
-    #print "tutuFL", tutuFirst, tutuLast
-    if tutuLast == tutuFirst:
-        #print "cest le meme "
-        if tutuFirst != []:        
-            for un in cand:
-                homo_opp[un] = tutuFirst
+    for un in cand:
+        tutu = oppoComp[tuple(pairopp[un])] #the opposite groups lists are already calculated
 
-    else:    
-        for un in cand:
-            #if len(pairopp[un]) > 1:
-            #homo_opp[un]=pairopp[un]
-            
-            
-            #print U.total_size(pairopp)
-            #print len(pairOppCoord[un])
-            #if len(cand) < 130: #pure proximity search
-            if len(pairOppCoord[un]) < 10000: #pure proximity search
-                #print "pure proximity --- len(cand)", len(cand), cand
-                tutu = homosame(xsome, pairopp[un], d, minPS, pairOppCoord[un])
-            else: #proximity search with binary search initiation for large groups
-                #print "binary proximity --- len(cand)", len(cand)
-                tutu = homosameBinary(xsome, pairopp[un], d, minPS, pairOppCoord[un])
-            #if 271 in cand:
-            #    print tutu
-    #        print "homoOpp ", tutu
-            
-            if tutu != []:
-            #if len(tutu)>=minPS:
-                #homo_opp[un]=toto[0]
-                homo_opp[un] = tutu
-    #            if U.ps_fictive(xsome[un]):
-    #                print "homoOpp ", xsome[un][0], homo_opp[un]
+        
+        if tutu != []:
+        #if len(tutu)>=minPS:
+            #homo_opp[un]=toto[0]
+            homo_opp[un] = tutu
+#            if U.ps_fictive(xsome[un]):
+#                print "homoOpp ", xsome[un][0], homo_opp[un]
     
     
 #Renvoie tous les PS homogenes de signe oppose
@@ -1682,8 +1681,8 @@ def Etape2_quick(order1, order2, candidats, oris, d, oppose, ps_type, min_MinPS)
         pairoppList2 = dichotoSearch(order2[signeop], cand[2], cand[0], d, order2[signeop],"NA")
 
         #mettre dans le dicos en virant les doublons
-        pairopp[cand[0]] = list(set(pairoppList1+pairoppList2))
-        pairopp2[".".join([str(x) for x in cand])] = list(set(pairoppList1+pairoppList2))
+        pairopp[cand[0]] = list(set(set(pairoppList1).intersection(pairoppList2)))
+        pairopp2[".".join([str(x) for x in cand])] = list(set(set(pairoppList1).intersection(pairoppList2)))
 
 
 
@@ -1820,7 +1819,7 @@ def Etape4_quick(xsome, SV, homo_same, pairopp, pairdiff, ori, d, minPS, min_Min
         none = True
         Fictive = False
         for i in g:
-            if U.binary_search(PSdiff, i) != -1: #cherche des PS opposee pour i
+            if U.binary_search(PSdiff, i) != -1: #cherche des PS opposee pour i (s il n y en a pas, ca sert a rien de continuer...)
                 none = none and (not pairdiff[i])
                 if not none: #Il suffit d une seule PS opp pour s arreter
                     break
@@ -1843,12 +1842,13 @@ def Etape4_quick(xsome, SV, homo_same, pairopp, pairdiff, ori, d, minPS, min_Min
                 print "Etap4 second 1 seul groupe ", xsome[g[0]][0],g
             SV[ori].append([g, [[]]])
         else:
-             # S'il y a des PS dans autre orientation, pour chaque PS de g,
+             # S'il y a des PS dans orientation opposee, pour chaque PS de g,
              # dresse les groupes homogenes de PS orientation opposee
-             # donc dictionnaire g_homo_opp: cle = PS de g, valeur = liste des
-             # PS homogenes opposees
+             # dictionnaire g_homo_opp: cle = PS de g, valeur = liste des PS homogenes opposees
             #print "debut", datetime.datetime.now()
-            g_homo_opp = homoOpp(xsome, g, pairopp, d, min_MinPS, pairOppCoord)
+            g_homo_opp = homoOpp(xsome, g, pairopp, d, min_MinPS, pairOppCoord) #THIS IS THE BOTTLENECK !!!
+            #print "g_homo_opp", g_homo_opp
+            #print "PAIROPP", pairopp
             #print "fin", datetime.datetime.now()
 
             if Fictive:
