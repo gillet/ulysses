@@ -857,10 +857,11 @@ def runDetectionInv(params, stats, chrDicos, list_chr_real):
         
         fusionHappend = True
         n = 1
-        print "fusion1"
+        
 #        resumeClean, fusionHappend = inversions_fusion(params, classorix, resumeClean, chrx, 0, D, ps_min, n)
 #        print "fusion2"
 #        resumeClean, fusionHappend = inversions_fusion(params, classorix, resumeClean, chrx, 0, D, ps_min, n)
+
         while fusionHappend:
             resumeClean, fusionHappend = inversions_fusion(params, classorix, resumeClean, chrx, 0, D, ps_min, n)
             n+=1
