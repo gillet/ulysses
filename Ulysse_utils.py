@@ -1674,20 +1674,28 @@ def Extremites(xsome, liste):
     # initialise une liste avec coord min et max pour chr1 et chr2
     if liste != []:
         l = xsome[liste[0]]
-        deb1 = l[3]
-        fin1 = l[3]
-        deb2 = l[6]
-        fin2 = l[6]
+#        deb1 = l[3]
+#        fin1 = l[3]
+#        deb2 = l[6]
+#        fin2 = l[6]
+        deb1 = -2
+        fin1 = -2
+        deb2 = -2
+        fin2 = -2
 
     #determine les min et max des coordonnees sur les deux chromosomes
         for i in range(1, len(liste)):
             l = xsome[liste[i]]
             p1 = l[3]
             p2 = l[6]
-            deb1 = min(p1, deb1)
-            fin1 = max(fin1, p1)
-            deb2 = min(p2, deb2)
-            fin2 = max(fin2, p2)
+            if deb1 == -2:
+                deb1, fin1 = p1, p1
+                deb2, fin2 = p2, p2
+            else:
+                deb1 = min(p1, deb1)
+                fin1 = max(fin1, p1)
+                deb2 = min(p2, deb2)
+                fin2 = max(fin2, p2)
 
     else:
         deb1 = fin1 = deb2 = fin2 = -1

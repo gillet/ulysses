@@ -1185,6 +1185,7 @@ def isSubtel(xsome, centrom, subtelo, interne, sv, diff_max_geneconv,
     if ok:
         #print "CHELOU"
         deb1, fin1, deb2, fin2 = U.Extremites(xsome, sub1)
+        #print "SUB1", sub1
         cle = oriPair(sub1[0], [], xsome)
         tsv = "Z"
         if diff_max_geneconv > 1:
@@ -1453,7 +1454,63 @@ def rmDupRmSub(a,b):
         else:
             a_b2 = []   
     return a_b2
-    
+
+
+#--------------------------------------------------------------------------    
+def rmSubNRT(dicos, d, xsome):
+    """remouve NRT (finaly i wrote a generic function, should work with INS and
+    TR, not tested though) contained in each other """
+    #1: identify compatible NRT, creat all 2 by 2 comparisons  
+    toFuse = {}    
+    for key in dicos.keys():
+        toFuse[key] = []
+        for ieme, i in enumerate(dicos[key]):
+            ori = i[2]
+            #print "iiiiii", i
+            d1,f1,d2,f2 = i[4],i[5],i[6],i[7]
+            m1, m2 = (d1+f1)/2, (d2+f2)/2
+            for jeme, j in enumerate(dicos[key]):
+                if jeme>ieme:
+                    orj = j[2]
+                    dj1,fj1,dj2,fj2 = j[4],j[5],j[6],j[7]
+                    mj1, mj2 = (dj1+fj1)/2, (dj2+fj2)/2
+                    #print "VALUES", d1,f1,d2,f2, ori, dj1,fj1,dj2,fj2, orj, d, d1-fj1, f1-dj1
+                    #if abs(d1-fj1)<d and abs(f1-dj1)<d and ori == orj:
+                    if abs(m1-mj1)<d and abs(m2-mj2)<d and ori == orj:
+                        #print "FOUND1"
+                        toFuse[key].append([ieme, jeme])
+    #2: fuse compatible subtel as maximal cliques
+    nDic = {}    
+    for key,groups in toFuse.iteritems(): 
+                   
+        G=nx.Graph()
+        G.add_edges_from(groups)
+        fusedG = nx.find_cliques_recursive(G)
+        f = [val for sublist in fusedG for val in sublist] #flatten list by position of the NRT in the list
+        singletonsNRT = list(set(range(0,len(dicos[key]))).difference(set(f))) #search singletons (NRT compatible with no other one)
+        fusedG = fusedG + [[x] for x in singletonsNRT] #add singletons
+
+        fusedListe = []
+        for elt in fusedG:
+            tmp = []
+            mm = []
+            pp = [] #will be empty for NRT
+            for SV in elt:
+                mm.extend(dicos[key][SV][0])
+                pp.extend(dicos[key][SV][1])
+                mm = list(set(mm))
+                pp = list(set(pp))
+            tmp.extend([mm, pp])
+            tmp.extend(dicos[key][SV][2:4])
+            deb1, fin1, deb2, fin2 = U.Extremites(xsome, mm)
+            tmp.extend([deb1, fin1, deb2, fin2])
+            tmp.append(dicos[key][SV][8])
+            define_SV_borders(tmp, tmp[0], tmp[1], xsome, 'tn', d)
+            fusedListe.append(tmp)
+        nDic[key] = fusedListe
+    return nDic
+        
+
     
 #--------------------------------------------------------------------------
 def rmDupSV(dicos):
@@ -1969,14 +2026,20 @@ def Etape4_quick(xsome, SV, homo_same, pairopp, pairdiff, ori, d, minPS, min_Min
 
 #--------------------------------------------------------------------------
 
-def Etape6_quick(transloc, insert1, insert2, subtelcap, ps_min_tn, xsome):
+def Etape6_quick(transloc, insert1, insert2, subtelcap, ps_min_tn, xsome, d):
     """ Etape4_quick leads to duplicates because we search both orientations (-- and ++ )
 	and (-+, +-) and do not classify SV given the orientation. """
      
-    transloc = rmDupSV(transloc)
+    transloc = rmDupSV(transloc) #rmDupSV only remove SV that are present in duplicates or subSV of already present SV
     insert1 = rmDupSV(insert1)
     insert2 = rmDupSV(insert2)
-    #subtelcap = rmDupSV(subtelcap)
+    
+    transloc = rmSubNRT(transloc, d, xsome)    
+    insert1 = rmSubNRT(insert1, d, xsome)    
+    insert2 = rmSubNRT(insert2, d, xsome)  
+    subtelcap = rmSubNRT(subtelcap, d, xsome) #rmSubNRT fuses closely related SV
+    
+    #print "SUBTELCAAAP", subtelcap
     
     tr = U.getPSSetListe(transloc)
     ins1 = U.getPSSetListe(insert1)
@@ -2407,6 +2470,7 @@ def getBorders(xsome, l1, l2, cen_str1, cen_str2, d, typesv):
 
 
 #Lists of signs and min/max pour TR ou INS
+    #print "typeSVS", typesv
     if "t" in typesv :
         borders = bordersTransloc(xsome, l1, l2, cen_str1, cen_str2)
     elif "ins" in typesv :
@@ -2638,15 +2702,15 @@ def Affiche(xsome, centrom, liste, pair, fich, typesv, nb):
             nb += 1
             manip = os.path.split(fich)[1].split("_")[0]
             U.write_bySV(outp, (manip, pair, nb, nbPS, nb1, nb2, left1,
-                                right1, right1-left1,cen_strA, left2, right2,
-                                right2 - left2, cen_strB, -1, -1, pbal, "NA"))
+                                right1, abs(right1-left1),cen_strA, left2, right2,
+                                abs(right2 - left2), cen_strB, -1, -1, pbal, "NA"))
 
 
             for s in sv[0]:
                 si = xsome[s]
                 U.write_byPS(out, (manip, pair, nb, nbPS, nb1, nb2, left1,
-                                   right1, right1-left1, cen_strA, left2,
-                                   right2, right2-left2, cen_strB, -1, -1,
+                                   right1, abs(right1-left1), cen_strA, left2,
+                                   right2, abs(right2-left2), cen_strB, -1, -1,
                                    pbal, "NA", si[0], si[1], si[2], si[3], si[4],
                                    si[5], si[6], 0))
 
@@ -2658,8 +2722,8 @@ def Affiche(xsome, centrom, liste, pair, fich, typesv, nb):
             for s in sv[1]:
                 si = xsome[s]
                 U.write_byPS(out, (manip, pair, nb, nbPS, nb1, nb2, left1,
-                                   right1, right1-left1, cen_strA, left2,
-                                   right2, right2-left2, cen_strB, -1, -1,
+                                   right1, abs(right1-left1), cen_strA, left2,
+                                   right2, abs(right2-left2), cen_strB, -1, -1,
                                    pbal, "NA", si[0], si[1], si[2], si[3], si[4],
                                    si[5], si[6], 0))
 

@@ -137,6 +137,7 @@ conversion is on\n\n")
 
     #TO REMOVE
     #ps_min_ins, ps_min_tr, ps_min_tn = 1,1,2
+    ps_min_tr = 8
 
 
     #Determine le nb minimum de ps pour chaque type de SV
@@ -303,7 +304,7 @@ conversion is on\n\n")
 
         #print transloc
         print "    Starting Etape 6: Remove SV duplicates", datetime.datetime.now()
-        transloc, insert1, insert2, subtelcap = sv.Etape6_quick(transloc, insert1, insert2, subtelcap, ps_min_tn, Xsome[pair])
+        transloc, insert1, insert2, subtelcap = sv.Etape6_quick(transloc, insert1, insert2, subtelcap, ps_min_tn, Xsome[pair],d)
         #print "CHECK2", l, "VS", len(subtelcap)
        
 

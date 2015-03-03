@@ -727,7 +727,7 @@ def runDetectionInv(params, stats, chrDicos, list_chr_real):
         #TODO: TOREMOVE
         if int(stats["median"])<1000:
             ps_min = 1
-        #ps_min = 1
+        #ps_min = 2
 #        print "D1", D
         #Pour chaque moins, moins recuperer copains plus, plus. et inversement
         candimoins, candiplus = inversions_Etape1et2(classorix, D, IDS, 
