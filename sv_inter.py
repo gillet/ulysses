@@ -4,7 +4,7 @@
 
 
 import Ulysse_utils as U
-import os, sys
+import os, sys, random
 try:
     import pysam
 except ImportError:
@@ -257,10 +257,7 @@ def homosame(xsome, liste, d, minPS, pairOppCoordListe):
 
     #get the PS IDs
     liste2 = map(U.conv, pairOppCoordListe)
-    #print "gggg", liste2
-    #print minPS
-    #liste_light = [x[0] for x in liste]
-    
+   
     #sort the list by 1) coord left and 2) right coord
     liste2 = sorted(liste2, key=operator.itemgetter(1, 2))
     
@@ -326,31 +323,7 @@ def homosame(xsome, liste, d, minPS, pairOppCoordListe):
         #only append non-already found groups that are big enough
         if ( tri2 not in sel2 ) and len([x[0] for x in tri2]) >= minPS:
             sel2.append(tri2)
-    #print "fin", datetime.datetime.now()
-    #print "deb", datetime.datetime.now()
-    #print seli
 
-    #seli = U.filter_list(seli)
-    
-    #print "fin2", datetime.datetime.now()
-
-
-
-##
-##
-#    l1 = set(map(tuple, homo))
-#    l2 = set(map(tuple, U.filter_list(seli)))
-#    if not l1 == l2:
-#        print        
-#        print homo
-#        print "---"
-#        print U.filter_list(seli)
-#        print
-#        
-#        
-#
-#    #print "homosame homo", l1 == l2 
-#    #print "homosame new",  seli
     return seli
 
 
@@ -615,30 +588,28 @@ def homosameBinary(xsome, liste, d, minPS, pairOppCoordListe):
 #--------------------------------------------------------------------------
 def homoOpp(xsome, cand, pairopp, d, minPS, pairOppCoord):
     """Group PS in ori X with respect to their common PS in ori oppX.
-    xsome: PS info
+    xsome: PS info dictionnary xsome[ps id] ==> PS reformated
     cand: groupe of compatible PS in a given orientation
     pairopp: dictionnary of compatible PS in opposite direction"""
-    
+    #print "homoOpp1"
     LPairOpp, LPairOppCoord = {}, {} #dict: key=list of compatible opposite pairs, value=list of PS with the compatble list key
-    for un in cand:
+    for un in cand: #for each PS in cand, make dico of the PS compatible in opposite orientation
         tmp = pairopp[un]
         tmp2 = pairOppCoord[un]
         
-        if tuple(tmp) not in LPairOpp:
+        if tuple(tmp) not in LPairOpp: #if new group of opposite ori compatible PS, creat new key
             LPairOpp[tuple(tmp)] = [un]
             LPairOppCoord[tuple(tmp2)] = [un]
-        else:
+        else: #else, we just save that this PS is also compatible with an existing key (gtoup of oposite PS)
             LPairOpp[tuple(tmp)].append(un)
             LPairOppCoord[tuple(tmp2)].append(un)
-    #LPairOppCoordRev = {tuple(v): k for k, v in LPairOppCoord.items()} #reverse the oppCorrd dicos
+    #print "homoOpp2", len( LPairOpp.keys())
     oppoComp = {} #dict: key=list of compatible opposite pairs, value=list the lists of PS groups made from the key
     for oppG, val in LPairOpp.iteritems():
-        #oppGCoords = list(LPairOppCoordRev[tuple(val)])
-        #tutu = homosame(xsome, list(oppG), d, minPS, oppGCoords) #make subgroups out of the group oppG
         tutu = homosame(xsome, list(oppG), d, minPS, pairOppCoord[val[0]]) #make subgroups out of the group oppG
         oppoComp[oppG] = tutu
     
-    
+    #print "homoOpp3"
     homo_opp = {}
     for un in cand:
         tutu = oppoComp[tuple(pairopp[un])] #the opposite groups lists are already calculated
@@ -651,7 +622,7 @@ def homoOpp(xsome, cand, pairopp, d, minPS, pairOppCoord):
 #            if U.ps_fictive(xsome[un]):
 #                print "homoOpp ", xsome[un][0], homo_opp[un]
     
-    
+    #print "homoOpp4"
 #Renvoie tous les PS homogenes de signe oppose
     return homo_opp
 
@@ -1457,12 +1428,13 @@ def rmDupRmSub(a,b):
 
 
 #--------------------------------------------------------------------------    
-def rmSubNRT(dicos, d, xsome):
+def rmSubNRT(dicos, d, xsome, type2sv):
     """remouve NRT (finaly i wrote a generic function, should work with INS and
     TR, not tested though) contained in each other """
     #1: identify compatible NRT, creat all 2 by 2 comparisons  
     toFuse = {}    
     for key in dicos.keys():
+        #print "KIKI", key
         toFuse[key] = []
         for ieme, i in enumerate(dicos[key]):
             ori = i[2]
@@ -1479,19 +1451,38 @@ def rmSubNRT(dicos, d, xsome):
                     if abs(m1-mj1)<d and abs(m2-mj2)<d and ori == orj:
                         #print "FOUND1"
                         toFuse[key].append([ieme, jeme])
+    #print "STARTING FUSION"
     #2: fuse compatible subtel as maximal cliques
     nDic = {}    
-    for key,groups in toFuse.iteritems(): 
-                   
+    for key,groups in toFuse.iteritems():
+        
         G=nx.Graph()
-        G.add_edges_from(groups)
+        #print "KIKI1", key, len(groups)
+        if len(groups)>2000000:
+            idxg = random.sample(range(len(groups)), 2000000)
+            #print "idxg", idxg
+            G.add_edges_from([groups[x] for x in idxg])
+            print "Warning: High coverage, dumped some RP", key, len([groups[x] for x in idxg])
+        else:
+            G.add_edges_from(groups)
+            #print "KIKI2", key, len(groups)
+        
+        
+        
+        
+        #print "size of graph", sys.getsizeof(G)
+        #print "KIKI2.0.1", key
         fusedG = nx.find_cliques_recursive(G)
-        f = [val for sublist in fusedG for val in sublist] #flatten list by position of the NRT in the list
-        singletonsNRT = list(set(range(0,len(dicos[key]))).difference(set(f))) #search singletons (NRT compatible with no other one)
+        #print "KIKI2.0.2", key, sys.getsizeof(fusedG)
+        f = set((val for sublist in fusedG for val in sublist)) #flatten list by position of the NRT in the list
+        #print "KIKI2.0.3", key
+        singletonsNRT = list(set(range(0,len(dicos[key]))).difference(f)) #search singletons (NRT compatible with no other one)
+        #print "KIKI2.0.4", key
         fusedG = fusedG + [[x] for x in singletonsNRT] #add singletons
-
+        #print "KIKI2.2", key
         fusedListe = []
         for elt in fusedG:
+            #print "KIKI2.3", key
             tmp = []
             mm = []
             pp = [] #will be empty for NRT
@@ -1505,7 +1496,7 @@ def rmSubNRT(dicos, d, xsome):
             deb1, fin1, deb2, fin2 = U.Extremites(xsome, mm)
             tmp.extend([deb1, fin1, deb2, fin2])
             tmp.append(dicos[key][SV][8])
-            define_SV_borders(tmp, tmp[0], tmp[1], xsome, 'tn', d)
+            define_SV_borders(tmp, tmp[0], tmp[1], xsome, type2sv, d)
             fusedListe.append(tmp)
         nDic[key] = fusedListe
     return nDic
@@ -1888,7 +1879,8 @@ def Etape4_quick(xsome, SV, homo_same, pairopp, pairdiff, ori, d, minPS, min_Min
         #listes des nouveaux groupes de PS a rajouter ensemble dans SV
         g_homo = [] #celles comprises dans g
         new = []    #celles dans le sens oppose de g
-
+        g_homo2 = [] #celles comprises dans g
+        new2 = []    #celles dans le sens oppose de g
 
         #Si pas de PS dans autre orientation, ajoute le groupe de PS homogene
         # g a la liste des SV avec
@@ -1917,6 +1909,7 @@ def Etape4_quick(xsome, SV, homo_same, pairopp, pairdiff, ori, d, minPS, min_Min
             #des PS opposées ==> c'est une NRT car l'algo ne fonctionne 
             #que pour des groupes >1.
             if len(g_homo_opp.keys())<len(g):
+                #print "WARNING, this should not happen in homoOpp"
                 if Fictive:
                     print "Etap4 second 1 seul groupe ", xsome[g[0]][0],g
                 SV[ori].append([g, [[]]])                
@@ -1926,34 +1919,50 @@ def Etape4_quick(xsome, SV, homo_same, pairopp, pairdiff, ori, d, minPS, min_Min
                 #listes des nouveaux groupes de PS a rajouter ensemble dans SV
     #            g_homo = [] #celles comprises dans g
     #            new = []    #celles dans le sens oppose de g
-    
+                #CEST CA !!!new2 = reduce(lambda x, y: U.intersectall(x, y, minPS), newD.values())  #this is like below but with a reduce to limite the number of combinations
+                #listDesGroupes = reduce(lambda x,y: tuple(set([tuple(i) for i in x]+[tuple(j) for j in y])), newD.values())
+                #print "g_homo_opp LA", len(g_homo_opp.keys()), [len(val) for key,val in g_homo_opp.iteritems()]
+                complexiteD = {}
+                for keyy,vall in g_homo_opp.iteritems():
+                    cle = tuple(tuple(i) for i in vall)                   
+                    if cle in complexiteD:
+                        complexiteD[cle].append(keyy)
+                    else:
+                        complexiteD[cle]=[keyy]
+                complexiteD2 = {}
+                for k,v in complexiteD.iteritems():
+                    for oppG in k:
+                        if oppG not in complexiteD2:
+                            complexiteD2[oppG]=v
+                        else:
+                            complexiteD2[oppG].extend(v)
+                #print "complexiteD2", complexiteD2
+                g_homo_opp_simple = {}
+                for k,v in complexiteD.iteritems():
+                    #print "V", v
+                    g_homo_opp_simple[v[0]] = [list(i) for i in k]
+                #print "complexiteD", g_homo_opp_simple
+                ###-----------------------------------------------------------------------------------------------
+                
                 #liste des PS de g avec des groupes ds g_homo_opp
-                lisg = g_homo_opp.keys()
+                lisg = g_homo_opp_simple.keys()
                 lisnul = [l for l in g if l not in lisg] #ps de g sans ps opposees forme subtelo_cap/transloc non recip
                 if lisnul :
                     SV[ori].append([lisnul, [[]]])
                 lisg.sort()
                 Lh = len(lisg)
-                if Fictive:
-                    print "Etap4 trois.a 2 groupes ", xsome[g[0]][0],g, lisg, Lh
+
                 # s'il existe au moins 2 PS de g avec des groupes g_homo_opp
                 if Lh > 1:
                     # Regarde si les PS copines signe opposes sont partagees par
                     # d'autres PS de meme signe
                     for j in range(Lh-1):
                         for k in range(j+1, Lh): #inter_kj = PS OPP compatibles avec k et j
-                            inter_kj = [l for l in g_homo_opp[lisg[k]] if\
-                                     l in g_homo_opp[lisg[j]] ]
-                            #if 434 in lisg:
-                            #print "FLAG2:", g, "inter_kj", inter_kj
-                            if Fictive:
-                                print "Etap4 trois.b 2 groupes ", g[0], \
-                                xsome[g[0]][0], lisg[k], lisg[j], "* inter ",\
-                                inter_kj
-                                print "Etap4 trois.b.a 2 groupes ", xsome[g[0]][0],\
-                                g_homo_opp[lisg[k]], g_homo_opp[lisg[j]]
+                            inter_kj = [l for l in g_homo_opp_simple[lisg[k]] if\
+                                     l in g_homo_opp_simple[lisg[j]] ]
+
                             if inter_kj:
-    
+
                             # S'il existe au moins 2 PS de g avec des PS opposes
                             # regarde si elles ne font pas partie d'un groupe deja definit
                             # dans new
@@ -1962,22 +1971,86 @@ def Etape4_quick(xsome, SV, homo_same, pairopp, pairdiff, ori, d, minPS, min_Min
                             #or ici ça ne marche pas
                                 inter_kj.sort()
     
-                                already, inter_kj2, inter = sumCom(g_homo, new, lisg[k], lisg[j], inter_kj)
+                                already, inter_kj2, inter = sumCom(g_homo, new, lisg[k], lisg[j], inter_kj) #ca ca append g_homo
     
                                 if not already:
-                                    #g_homo.append([lisg[k], lisg[j]])
                                     g_homo.append([lisg[j], lisg[k]])
                                     if not inter:
                                         new.append(inter_kj2)
                                     else:
                                         new.append(inter_kj)
-                                #print "sumCom ", lisg[j], lisg[k],  g_homo, "new", new, inter_kj
-                                if Fictive:
-                                    print "After sumCom ",xsome[g[0]][0], g_homo, "*",inter_kj,"*already",already,"*new ",new
-    
-    
-                    if Fictive:
-                        print "Etap4 trois.e 2 groupes ", xsome[g[0]][0],g_homo,new
+                #print "DEB", g_homo, new
+                
+                    for k,v in complexiteD.iteritems(): #complexiteD
+                        #if len(v) >= min_MinPS:
+                        g_homo.append(sorted(v))
+                        new.append([list(i) for i in k])
+                    #print "COMPA", g_homo, new
+
+                ###-----------------------------------------------------------------------------------------------                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+#                ###ORI-----------------------------------------------------------------------------------------------
+#                #liste des PS de g avec des groupes ds g_homo_opp
+#                lisg = g_homo_opp.keys()
+#                lisnul = [l for l in g if l not in lisg] #ps de g sans ps opposees forme subtelo_cap/transloc non recip
+#                if lisnul :
+#                    SV[ori].append([lisnul, [[]]])
+#                lisg.sort()
+#                Lh = len(lisg)
+#                if Fictive:
+#                    print "Etap4 trois.a 2 groupes ", xsome[g[0]][0],g, lisg, Lh
+#                # s'il existe au moins 2 PS de g avec des groupes g_homo_opp
+#                if Lh > 1:
+#                    # Regarde si les PS copines signe opposes sont partagees par
+#                    # d'autres PS de meme signe
+#                    for j in range(Lh-1):
+#                        for k in range(j+1, Lh): #inter_kj = PS OPP compatibles avec k et j
+#                            inter_kj = [l for l in g_homo_opp[lisg[k]] if\
+#                                     l in g_homo_opp[lisg[j]] ]
+#                            #if 434 in lisg:
+#                            #print "FLAG2:", g, "inter_kj", inter_kj
+#                            if Fictive:
+#                                print "Etap4 trois.b 2 groupes ", g[0], \
+#                                xsome[g[0]][0], lisg[k], lisg[j], "* inter ",\
+#                                inter_kj
+#                                print "Etap4 trois.b.a 2 groupes ", xsome[g[0]][0],\
+#                                g_homo_opp[lisg[k]], g_homo_opp[lisg[j]]
+#                            if inter_kj:
+#    
+#                            # S'il existe au moins 2 PS de g avec des PS opposes
+#                            # regarde si elles ne font pas partie d'un groupe deja definit
+#                            # dans new
+#    
+#                            #C'est là que ça merde : Il faut rajouter toutes les PS de g qui ont des PS opp communes
+#                            #or ici ça ne marche pas
+#                                inter_kj.sort()
+#                                already, inter_kj2, inter = sumCom(g_homo, new, lisg[k], lisg[j], inter_kj)
+#
+#                                if not already:
+#                                    #print "G_HOMO", g_homo, [lisg[j], lisg[k]]
+#                                    g_homo.append([lisg[j], lisg[k]])
+#                                    if not inter:
+#                                        new.append(inter_kj2)
+#                                    else:
+#                                        new.append(inter_kj)
+#                                #print "sumCom ", lisg[j], lisg[k],  g_homo, "new", new, inter_kj
+#                                if Fictive:
+#                                    print "After sumCom ",xsome[g[0]][0], g_homo, "*",inter_kj,"*already",already,"*new ",new
+#                    if Fictive:
+#                        print "Etap4 trois.e 2 groupes ", xsome[g[0]][0],g_homo,new
+##                    print "COMPA", g_homo, g_homo2
+#                    print "COMPA", g_homo, new
+#                    print "SECOND", g_homo2, new2
+#                    #sys.exit()
+                ###-----------------------------------------------------------------------------------------------
                 elif Lh == 1:
                     #s'il existe 1 seul PS de g avec des groupes g_homo_opp
                     g_homo = [lisg]
@@ -2031,13 +2104,19 @@ def Etape6_quick(transloc, insert1, insert2, subtelcap, ps_min_tn, xsome, d):
 	and (-+, +-) and do not classify SV given the orientation. """
      
     transloc = rmDupSV(transloc) #rmDupSV only remove SV that are present in duplicates or subSV of already present SV
+    #print "after tr"    
     insert1 = rmDupSV(insert1)
+    #print "after ins1"
     insert2 = rmDupSV(insert2)
+    #print "after ins2"
     
-    transloc = rmSubNRT(transloc, d, xsome)    
-    insert1 = rmSubNRT(insert1, d, xsome)    
-    insert2 = rmSubNRT(insert2, d, xsome)  
-    subtelcap = rmSubNRT(subtelcap, d, xsome) #rmSubNRT fuses closely related SV
+    transloc = rmSubNRT(transloc, d, xsome, 'tn')
+    #print "after trN"    
+    insert1 = rmSubNRT(insert1, d, xsome, 'ins') 
+    #print "after ins1N"
+    insert2 = rmSubNRT(insert2, d, xsome, 'ins')  
+    #print "after ins2N"
+    subtelcap = rmSubNRT(subtelcap, d, xsome, 'tn') #rmSubNRT fuses closely related SV
     
     #print "SUBTELCAAAP", subtelcap
     

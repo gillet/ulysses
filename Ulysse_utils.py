@@ -1455,6 +1455,15 @@ def intersectall(a, b, minPS):
 
 #--------------------------------------------------------------------------
 
+def intersectionsNull(s, compl):
+	v = list(set(map(tuple, [s.intersection(x) for x in map(set, compl)])))
+	if v == [()]:
+		return True
+	else:
+		return False
+
+#--------------------------------------------------------------------------
+
 def reOrder(bySVfileName, byPSfileName, d):
     """ function that can add mean PS SV quality in any SV detection file pair (SV and PS) """
     #

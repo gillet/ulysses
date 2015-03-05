@@ -424,10 +424,10 @@ def inversions_Etape6_v2(classorix, homo, groupes, signe, summary, minPS):
         for g in groupes:
             if g:
                 g.sort()
-		#pour chaque PS dans un groupe homogene
+		#pour chaque PS dans un groupe homogene...
             newD = {}
             for ind, i in enumerate(g):
-		#Regarde si les PS copines signe opposes sont partagees par d'autres PS de meme signe
+		#...regarde si les PS copines signe opposes sont partagees par d'autres PS de meme signe
                 if i in homo.keys() :
                     li = map(list, map(set, homo[i]))
                     #print "LI", li
