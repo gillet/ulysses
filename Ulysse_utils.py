@@ -845,7 +845,15 @@ def Limites(xsome, s1, s2):
     else:
         return -1, -1, -1, -1
 
+#--------------------------------------------------------------------------
+def allLimites(xsome, s1, s2):
 
+    """ Definit les extremites des SV"""
+
+    deb1, fin1, deb2, fin2 = Extremites(xsome, s1)
+    d1, f1, d2, f2 = Extremites(xsome, s2)
+
+    return deb1, fin1, deb2, fin2, d1, f1, d2, f2
 #------------------------------------------------------------------------------
 def ExtensionSV_old(candid, select, d, ids):
     """ For Duplication and Deletion SV

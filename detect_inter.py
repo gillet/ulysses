@@ -88,8 +88,11 @@ def runDetectionInter(params, stats, chrDicos):
 conversion is on\n\n")
 
 
-    clasdifx = []
-    dicQual = sv.ReadFilesBAM(params, clasdifx, stats["ps_type"])
+    clasdifxAll = []
+    dicQualAll = sv.ReadFilesBAM(params, clasdifxAll, stats["ps_type"])
+    
+    dicQual, clasdifx = sv.filterBam(params, clasdifxAll, dicQualAll) #filters mapping qualirty>0
+    
     print "PS loaded from BAM file"
     os.system("date")
 
@@ -137,7 +140,7 @@ conversion is on\n\n")
 
     #TO REMOVE
     #ps_min_ins, ps_min_tr, ps_min_tn = 1,1,2
-    ps_min_tr = 8
+    
 
 
     #Determine le nb minimum de ps pour chaque type de SV
@@ -185,7 +188,7 @@ conversion is on\n\n")
         minPS = {"ins" : ps_min_ins, "tn" : ps_min_tn, "tr" : ps_min_tr}
         if int(stats["median"])<1000:
             minPS = {"ins" : 1, "tn" : 2, "tr" : 1}
-        #minPS = {"ins" : 2, "tn" : 2, "tr" : 2}
+        #minPS = {"ins" : 47, "tn" : 28, "tr" : 5}
         #min_MinPS = min(ps_min_ins, ps_min_tn, ps_min_tr)
         
         min_MinPS = min(minPS.values())

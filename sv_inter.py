@@ -46,6 +46,18 @@ def ReadFilesBAM(params, clasx, ps_type):
 
     return dicQual
 
+#--------------------------------------------------------------------------
+def filterBam(params, clasdifxAll, dicQualAll):
+    """ filterBAM files for a minimum mapping quaolity"""
+    dicQual = {}
+    clasdifx = []
+    for rInfo in clasdifxAll:
+        rname = rInfo[0]
+        #if min(dicQualAll[rname])>int(params['mapqx']):
+        if min(dicQualAll[rname])>9.9:
+            clasdifx.append(rInfo)
+            dicQual[rname] = dicQualAll[rname]
+    return dicQual, clasdifx
 #------------------------------------------------------------------------------
 #TEMPORAIRE A VIRER (lecture fichier ulysse)
 def enumerate_X(xsome, names):
@@ -1042,6 +1054,9 @@ def isInsert(xsome, svs, diff_max_geneconv, diff_max_other, diff_min_other,
     cle = oriPair(svs[0][0], svs[1][0], xsome)
 
     deb1, fin1, deb2, fin2 = U.Limites(xsome, svs[0], svs[1])
+    gdeb1, gfin1, ddeb1, dfin1, gdeb2, gfin2, ddeb2, dfin2 = U.allLimites(xsome, svs[0], svs[1])
+    
+    
     tsv = "Z"
     if diff_max_geneconv > 1:
         tsv = type_SV(deb1, fin1, deb2, fin2, diff_max_geneconv,
@@ -1061,8 +1076,13 @@ def isInsert(xsome, svs, diff_max_geneconv, diff_max_other, diff_min_other,
         deb1, fin1, deb2, fin2 = U.Extremites(xsome, sub1)
         tipe ="tn"
     
+    
+    if max(gdeb1, gdeb2) < min(gfin1, gfin2) and max(ddeb1, ddeb2) < min(dfin1, dfin2):
+        tsv = "rien"
+    
     if tsv == "Z":
         if tipe == "ins":
+            #print "CHECK", deb1, fin1, deb2, fin2
             add2Dict(liste, cle, svs, deb1, fin1, deb2, fin2, pbal, xsome,
              "ins", d)
         else:
@@ -1098,6 +1118,7 @@ def isPutativIns(xsome, svs,  diff_max_geneconv, diff_max_other, diff_min_other,
     n2 = len(svs[1])
 
     deb1, fin1, deb2, fin2 = U.Limites(xsome, svs[0], svs[1])
+    gdeb1, gfin1, ddeb1, dfin1, gdeb2, gfin2, ddeb2, dfin2 = U.allLimites(xsome, svs[0], svs[1])
     tsv = "Z"
     if diff_max_geneconv > 1:
         tsv = type_SV(deb1, fin1, deb2, fin2, diff_max_geneconv,
@@ -1117,6 +1138,9 @@ def isPutativIns(xsome, svs,  diff_max_geneconv, diff_max_other, diff_min_other,
         sub1, bks, ins1, bki = isSubtelo_Cap(xsome, centrom, subtelo, svs[0], interne)
         deb1, fin1, deb2, fin2 = U.Extremites(xsome, sub1)
         tipe ="tn"
+
+    if max(gdeb1, gdeb2) < min(gfin1, gfin2) and max(ddeb1, ddeb2) < min(dfin1, dfin2):
+        tsv = "rien"
 
     if tsv == "Z":
         if tipe == "ins":
@@ -1377,11 +1401,22 @@ def updateSubtelcap(subtelcap, inter, ps_min_tn, xsome):
     #2: remove duplicates due to "dual" orientation search (should not happen)
     subtelcapNew2 = {}
     for key, val in subtelcapNew.iteritems():
-        #print val
+        #print "val", val
         newVal = list(set(map(U.list2tuples, val)))
         subtelcapNew2[key]=newVal
     
-    return subtelcapNew
+    #3 remove NRT smaller than minPS
+    subtelcapNew3 = {}
+    for key, val in subtelcapNew.iteritems():
+        newVal = []        
+        for sv in val:
+            if len(sv[0])>=ps_min_tn:
+                newVal.append(sv)
+        subtelcapNew3[key]=newVal
+    
+    
+    
+    return subtelcapNew2
 
 
 #--------------------------------------------------------------------------
@@ -1429,7 +1464,7 @@ def rmDupRmSub(a,b):
 
 #--------------------------------------------------------------------------    
 def rmSubNRT(dicos, d, xsome, type2sv):
-    """remouve NRT (finaly i wrote a generic function, should work with INS and
+    """remove NRT (finaly i wrote a generic function, should work with INS and
     TR, not tested though) contained in each other """
     #1: identify compatible NRT, creat all 2 by 2 comparisons  
     toFuse = {}    
@@ -1441,25 +1476,28 @@ def rmSubNRT(dicos, d, xsome, type2sv):
             #print "iiiiii", i
             d1,f1,d2,f2 = i[4],i[5],i[6],i[7]
             m1, m2 = (d1+f1)/2, (d2+f2)/2
+            #print "ICI", d1,f1,d2,f2, m1, m2, ori
             for jeme, j in enumerate(dicos[key]):
                 if jeme>ieme:
                     orj = j[2]
                     dj1,fj1,dj2,fj2 = j[4],j[5],j[6],j[7]
                     mj1, mj2 = (dj1+fj1)/2, (dj2+fj2)/2
-                    #print "VALUES", d1,f1,d2,f2, ori, dj1,fj1,dj2,fj2, orj, d, d1-fj1, f1-dj1
+                    #print "VALUES", d1,f1,d2,f2, ori, dj1,fj1,dj2,fj2, orj, d, m1, m2, mj1, mj2
+                    #print "VALUES", type2sv, ieme, jeme, ori, orj, d, m1, m2, mj1, mj2
                     #if abs(d1-fj1)<d and abs(f1-dj1)<d and ori == orj:
+                    
                     if abs(m1-mj1)<d and abs(m2-mj2)<d and ori == orj:
                         #print "FOUND1"
                         toFuse[key].append([ieme, jeme])
-    #print "STARTING FUSION"
+    #print "STARTING FUSION", type2sv, toFuse
     #2: fuse compatible subtel as maximal cliques
     nDic = {}    
     for key,groups in toFuse.iteritems():
         
         G=nx.Graph()
         #print "KIKI1", key, len(groups)
-        if len(groups)>2000000:
-            idxg = random.sample(range(len(groups)), 2000000)
+        if len(groups)>1000000:
+            idxg = random.sample(range(len(groups)), 200000)
             #print "idxg", idxg
             G.add_edges_from([groups[x] for x in idxg])
             print "Warning: High coverage, dumped some RP", key, len([groups[x] for x in idxg])
@@ -1478,8 +1516,9 @@ def rmSubNRT(dicos, d, xsome, type2sv):
         #print "KIKI2.0.3", key
         singletonsNRT = list(set(range(0,len(dicos[key]))).difference(f)) #search singletons (NRT compatible with no other one)
         #print "KIKI2.0.4", key
+        #print "fusedG", type2sv, fusedG
         fusedG = fusedG + [[x] for x in singletonsNRT] #add singletons
-        #print "KIKI2.2", key
+        #print "fusedG+singletons", type2sv, fusedG
         fusedListe = []
         for elt in fusedG:
             #print "KIKI2.3", key
@@ -1879,8 +1918,8 @@ def Etape4_quick(xsome, SV, homo_same, pairopp, pairdiff, ori, d, minPS, min_Min
         #listes des nouveaux groupes de PS a rajouter ensemble dans SV
         g_homo = [] #celles comprises dans g
         new = []    #celles dans le sens oppose de g
-        g_homo2 = [] #celles comprises dans g
-        new2 = []    #celles dans le sens oppose de g
+        #g_homo2 = [] #celles comprises dans g
+        #new2 = []    #celles dans le sens oppose de g
 
         #Si pas de PS dans autre orientation, ajoute le groupe de PS homogene
         # g a la liste des SV avec
@@ -1979,13 +2018,11 @@ def Etape4_quick(xsome, SV, homo_same, pairopp, pairdiff, ori, d, minPS, min_Min
                                         new.append(inter_kj2)
                                     else:
                                         new.append(inter_kj)
-                #print "DEB", g_homo, new
                 
                     for k,v in complexiteD.iteritems(): #complexiteD
                         #if len(v) >= min_MinPS:
-                        g_homo.append(sorted(v))
+                        g_homo.append(list(set(sorted(v))))
                         new.append([list(i) for i in k])
-                    #print "COMPA", g_homo, new
 
                 ###-----------------------------------------------------------------------------------------------                
                 
@@ -2109,14 +2146,15 @@ def Etape6_quick(transloc, insert1, insert2, subtelcap, ps_min_tn, xsome, d):
     #print "after ins1"
     insert2 = rmDupSV(insert2)
     #print "after ins2"
+    subtelcap = rmDupSV(subtelcap)
     
-    transloc = rmSubNRT(transloc, d, xsome, 'tn')
+    transloc = rmSubNRT(transloc, d, xsome, 'tr')
     #print "after trN"    
-    insert1 = rmSubNRT(insert1, d, xsome, 'ins') 
+    #insert1 = rmSubNRT(insert1, 2*d, xsome, 'ins') 
     #print "after ins1N"
-    insert2 = rmSubNRT(insert2, d, xsome, 'ins')  
+    #insert2 = rmSubNRT(insert2, 2*d, xsome, 'ins')  
     #print "after ins2N"
-    subtelcap = rmSubNRT(subtelcap, d, xsome, 'tn') #rmSubNRT fuses closely related SV
+    subtelcap = rmSubNRT(subtelcap, 2*d, xsome, 'tn') #rmSubNRT fuses closely related SV
     
     #print "SUBTELCAAAP", subtelcap
     
@@ -2296,10 +2334,8 @@ def ClassifIndiv(sv, sv1, sv2, xsome, centrom, subtelo, SV, d, allowed_transloc,
 
             oktransloc = []
             put_ins = []
-            #print "RRRRRRRRRRRRR sv", sv, "sv1", sv1, "sv2", sv2
             compat, notcompat = U.TestArmOri(xsome, centrom, allowed_transloc,
                                                         sv1, sv2)
-            #print "\t Armorie:", time.time() - t1
 
             if Fictive:
                 print "Classif Compat ", xsome[sv1[0]][0]," compat ",compat,\
@@ -2341,6 +2377,7 @@ def ClassifIndiv(sv, sv1, sv2, xsome, centrom, subtelo, SV, d, allowed_transloc,
                              diff_max_other, diff_min_other, geneconv,
                              insert2, snp, subtelcap, d, centrom, subtelo, interne)
                     typesv = "ins"
+                    #print "CA INS ICI !!"
 
                 elif put_ins and (put_ins not in oktransloc) and  \
                      ((len(oktransloc[0]) < minPS["tr"]) or (len(oktransloc[1]) < minPS["tr"])) :
@@ -2372,6 +2409,7 @@ def ClassifIndiv(sv, sv1, sv2, xsome, centrom, subtelo, SV, d, allowed_transloc,
                                  diff_max_other, diff_min_other, geneconv,
                                  insert1, snp, subtelcap, d, centrom, subtelo, interne)
                      typesv = "ins"
+                     #print "CA INS PLUTOT ICI !!"
 
 
                 elif (len(sv1) >= minPS["ins"]) and (len(sv2) >= minPS["ins"]):
@@ -2381,6 +2419,7 @@ def ClassifIndiv(sv, sv1, sv2, xsome, centrom, subtelo, SV, d, allowed_transloc,
                              diff_max_other, diff_min_other, geneconv,
                              insert2, snp, subtelcap, d, centrom, subtelo, interne)
                     typesv = "ins"
+                    #print "AH NON ICI !!"
 
 
 #    if typesv != "rejected":
@@ -2395,21 +2434,18 @@ def Classif(xsome, centrom, subtelo, SV, d, allowed_transloc, interne,
             geneconv, transloc, snp, insert1, insert2, outf, minPS, ps_type):
     """ Classify SV."""
     ntot = 0
-    #llprint SV
     for sv in SV:
+        sv[0] = list(set(sv[0]))
+        if sv[1]:
+            sv[1] = [list(set(ssv)) for ssv in sv[1]]
+        #print "SV", len(sv)
         #print ntot, len(SV)
         ntot += 1
-        #TEST TO BE REMOVED
-        #if ntot == 1000000000 :
-        #    break
-        #if 449 in sv[0] or 450 in sv[0]:
-        #    print "Classif pre0 ",sv, xsome[sv[0][0]][0], d
-
 
         if U.ps_fictive(xsome[sv[0][0]]):
             print "Classif 0 ",sv, xsome[sv[0][0]][0]
         if not sv[1]:
-            #print "ntot", ntot
+            #print "ntot2", ntot
             nPS, typesv = ClassifIndiv(sv, sv[0], sv[1], xsome, centrom, subtelo,
                      SV, d, allowed_transloc, interne, diff_max_geneconv,
                      diff_max_other, diff_min_other, subtelcap, geneconv,
@@ -2418,9 +2454,15 @@ def Classif(xsome, centrom, subtelo, SV, d, allowed_transloc, interne,
                 print ntot, "Classif 1", nPS, typesv, sv[0]
 
         else:
-            #print "ntot", ntot
             #print "insert1", insert1
+            cp=0
+            if ntot%50 == 0:
+                print ntot, "/", len(SV),"/", cp, "/", len(sv[1])
             for sv2 in sv[1]:
+                #print "sv2-ntot", cp, len(sv[1]), ntot #, set(sv[0]), set(sv2)
+                cp+=1
+                if cp%250 == 0:
+                    print "     cp / len(sv[1])", cp, "/", len(sv[1])
                 if U.ps_fictive(xsome[sv[0][0]]):
                     print "Classif 2 ", sv[0], sv2
 
@@ -2429,13 +2471,6 @@ def Classif(xsome, centrom, subtelo, SV, d, allowed_transloc, interne,
                      diff_max_other, diff_min_other, subtelcap, geneconv,
                      transloc, insert1, insert2, snp, outf, minPS, ps_type)
                      
-#    tr = U.getPSSetListe(transloc)
-#    ins1 = U.getPSSetListe(insert1)
-#    ins2 = U.getPSSetListe(insert2)
-#    inter = set(tr+ins1+ins2)
-#    #temp = tr+ins1+ins2
-#    #print "jjj", temp[0]
-#    subtelcap = updateSubtelcap(subtelcap, inter, minPS["tn"], xsome) #remove dup and inter conta
 
 #--------------------------------------------------------------------------
 def extremites(liste, sens):

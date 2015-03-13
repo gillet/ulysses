@@ -807,10 +807,11 @@ getPCOMP.hugues <- function(l,d, tipe, pISvec, n = 2, pISde2){
 getPCOMPINTER.new.hugues <- function(d, tipe, minps, l1, l2){
   ###Compute the proba that minps-1 are within a range d
   ###of the first one
-  if(debug==TRUE) {print("getPCOMPINTER.new.hugues1")}
+  #if(debug==TRUE) {print("getPCOMPINTER.new.hugues1")}
   if(tipe=="INS"){
     if(d>10000) {
-      dINS = d/2
+      #dINS = d/2
+      dINS = d/1.5
     } else {
       dINS = d
     }
@@ -820,7 +821,8 @@ getPCOMPINTER.new.hugues <- function(d, tipe, minps, l1, l2){
   } else if(tipe=="TR") {
     pcomp = ComputePdistPS(2*d,l1, 2*minps) * ComputePdistPS(2*d, l2, 2*minps)
   } else if(tipe=="TN") {
-    if(d>10000) {d = d/4}
+    #if(d>10000) {d = d/2.6}
+    if(d>10000) {d = d/2.6}
     pcomp = ComputePdistPS(d,l1, minps) * ComputePdistPS(d,l2, minps)
     
   } 
@@ -1025,15 +1027,22 @@ getPTN <- function(x, tipe){
 	d=as.numeric(x['d'])
 	l=as.numeric(x['l'])
 	PS=as.numeric(x['nbRP'])
+	#if(debug==TRUE) {print(paste(ndis, li, lj, d, l, PS, sep=" -- "))}
+	#
   
 # 	pc1=((d/li)^(PS-1))*(d/lj)^(PS-1)
 # 	s=choose(ndis,PS)*pc1/2 #only half of genome concerned
 #   
-# 	pc1=((d*d)/(li*lj))^(PS-1)
-# 	s=choose(ndis,PS)*pc1
+ 	#pc1=((d*d)/(li*lj))^(PS-1)
+ 	#s=choose(ndis,PS)*pc1
 
   pIS = getPCOMPINTER.new.hugues(d, tipe, PS, li, lj)
-  s=choose(ndis,PS)*pIS
+  if(d>1000){
+    s=choose(ndis,PS/1.1)*pIS
+  } else {
+    s=choose(ndis,PS)*pIS
+  }
+  
 	  
 	return(round(s))
 }

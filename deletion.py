@@ -663,7 +663,7 @@ def runDetectionDel(params, stats, chrDicos):
            
     if ps_min == 1:
         ps_min = 2   
-    #ps_min =2
+    ps_min =3
     print "\nMINPS for a deletion:", ps_min
 
 

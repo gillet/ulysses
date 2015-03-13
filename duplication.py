@@ -52,7 +52,19 @@ def ReadFilesBAM(params, cx, subtel, median, ori, dicQual):
                         else:
                             dicQual[read1.qname] = [read1.mapq]           
 
-    clasamex = sorted(tempo, key = itemgetter(3))
+    clasamexAll = sorted(tempo, key = itemgetter(3))
+    #print clasamexAll
+
+    clasamex = []
+    for rInfo in clasamexAll:
+        rname = rInfo[0]
+        #print rname, dicQual[rname], int(params['mapq'])
+        #if min(dicQual[rname])>int(params['mapq']):
+        if min(dicQual[rname])>0:
+            clasamex.append(rInfo)
+
+      
+    
     print "Processing", cx, "- Nb of discordant PS:", \
     str(len(clasamex)), "-", now.strftime("%Y-%m-%d %H:%M")
     #print "Nb of discordant PS", len(clasamex), "("+cx+")"  #,  clasamex
@@ -296,7 +308,7 @@ def runDetectionDup(params, stats, chrDicos, list_chr_real):
         params["in"]+".dist.table", sval, params["fdr"],params["out"], stats["rl"], 
                                  params["n"], list_chr_real)
 
-
+    #ps_min = 2
 # END ALEX PARAMETERS #######################################################
 
     subtelo=U.get_subtelo_limits(params)

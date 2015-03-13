@@ -75,7 +75,7 @@ if(IS.med>1000) {
   #print("get ISddist")
   if(debug==TRUE) {print(IS.med/10)}
   if(debug==TRUE) {print((IS.mad)/10)}
-  ISddist <- getISddist(IS.med/10, 2*IS.mad/10)
+  ISddist <- getISddist(IS.med, IS.mad)
   #if(debug==TRUE) {print((ISddist))}
   ISc <- (n.param*IS.mad)/10
   #print("end get ISddist")
