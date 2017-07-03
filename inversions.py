@@ -871,7 +871,7 @@ def runDetectionInv(params, stats, chrDicos, list_chr_real):
         while fusionHappend:
             resumeClean, fusionHappend = inversions_fusion(params, classorix, resumeClean, chrx, 0, D, ps_min, n)
             n+=1
-            #print n
+            print n
             if n > 20:
                 fusionHappend = False
 
