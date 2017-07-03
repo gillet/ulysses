@@ -322,12 +322,13 @@ def inversions_Etape5(clasamex, liste, signe, d, ids, minPS):
     #stop = 0
     sel = []
     for i in liste:
-        
+        #print '===> ', i
         tri = [i]
         for j in liste:
             
             cand_ok = candidatInvMemeSigne(clasamex[signe][i],
                                            clasamex[signe][j], d, ids)
+            #print cand_ok                   
 #            if (i == 16 and j==175) or (j == 16 and i==175):
 #                print i, j, cand_ok, clasamex[signe][i], clasamex[signe][j]
 #	    if U.ps_fictive(clasamex[signe][i]) and U.ps_fictive(clasamex[signe][j]):
@@ -358,14 +359,18 @@ def inversions_Etape5(clasamex, liste, signe, d, ids, minPS):
                         t.append((PS, otherPS))
         G=nx.Graph()
         G.add_edges_from(t)
-        fused = nx.find_cliques_recursive(G)
-        if fused:
+        #fused = nx.find_cliques_recursive(G)
+        fused = nx.find_cliques(G)
+        tmpL = list(fused) 
+        if len(tmpL) != 0:
+            #print 'tmpL', tmpL
             #if len(g) != len(max(fused, key=len)):
             #    print 'avant - fused',len(g), len(max(fused, key=len))
 #            if 16 in g and 175 in g:
 #                print "ET LA ???", g, max(fused, key=len)
-            if len(max(fused, key=len)) > minPS:
-                nsel.append(list(max(fused, key=len)))
+            #print 'max(tmpL, key=len)', max(tmpL, key=len)
+            if len(max(tmpL, key=len)) >= minPS:
+                nsel.append(max(tmpL, key=len))
               
 
     return nsel
@@ -539,10 +544,11 @@ def inversions_fusion(params, clasamex, liste, chrox, nb, d, minPS, n):
     G=nx.Graph()
     G.add_edges_from(toFuse)
     fusedG = nx.find_cliques_recursive(G)
-    if fusedG:
+    tmpL = list(fusedG)
+    if len(tmpL) != 0:
         f = [val for sublist in fusedG for val in sublist] #flatten list
         singletonsINV = list(set(range(0,len(liste))).difference(set(f))) #search singletons (INV compatible with no other one)
-        fusedG = fusedG + [[x] for x in singletonsINV] #add singletons
+        fusedG = list(fusedG) + [[x] for x in singletonsINV] #add singletons
 #        if n==2:
 #            print "liste", liste
 #            print "toFuse", toFuse
@@ -740,7 +746,7 @@ def runDetectionInv(params, stats, chrDicos, list_chr_real):
 #        print "D3", D
         #Faire des sous-groupes homogenes avec les moins, moins copains d'un plus, plus
         homo_plus = inversions_Etape4(classorix, candiplus, "++", D, IDS, ps_min)
-        
+        #print 'homo_plus, homo_moins', homo_plus, homo_moins
 #        import pickle
 #                
 #        ids = zip(*classorix['--'])[0]
@@ -865,6 +871,9 @@ def runDetectionInv(params, stats, chrDicos, list_chr_real):
         while fusionHappend:
             resumeClean, fusionHappend = inversions_fusion(params, classorix, resumeClean, chrx, 0, D, ps_min, n)
             n+=1
+            #print n
+            if n > 20:
+                fusionHappend = False
 
         
         

@@ -1517,7 +1517,7 @@ def rmSubNRT(dicos, d, xsome, type2sv):
         singletonsNRT = list(set(range(0,len(dicos[key]))).difference(f)) #search singletons (NRT compatible with no other one)
         #print "KIKI2.0.4", key
         #print "fusedG", type2sv, fusedG
-        fusedG = fusedG + [[x] for x in singletonsNRT] #add singletons
+        fusedG = list(fusedG) + [[x] for x in singletonsNRT] #add singletons
         #print "fusedG+singletons", type2sv, fusedG
         fusedListe = []
         for elt in fusedG:
@@ -2456,8 +2456,8 @@ def Classif(xsome, centrom, subtelo, SV, d, allowed_transloc, interne,
         else:
             #print "insert1", insert1
             cp=0
-            if ntot%50 == 0:
-                print ntot, "/", len(SV),"/", cp, "/", len(sv[1])
+            #if ntot%50 == 0:
+            #    print ntot, "/", len(SV),"/", cp, "/", len(sv[1])
             for sv2 in sv[1]:
                 #print "sv2-ntot", cp, len(sv[1]), ntot #, set(sv[0]), set(sv2)
                 cp+=1
